@@ -4,7 +4,6 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>vizzzuals</title>
-  <!-- Load mp4-muxer from CDN for browser-side MP4 container generation -->
   <script src="https://cdn.jsdelivr.net/npm/mp4-muxer@5.1.0/build/mp4-muxer.min.js"></script>
   <style>
     :root {
@@ -40,7 +39,6 @@
       gap: 30px;
     }
 
-    /* Left Sidebar - Controls */
     .controls-panel {
       background: var(--card-bg);
       padding: 24px;
@@ -68,7 +66,6 @@
       margin-bottom: 6px;
     }
 
-    /* Dropzone */
     .dropzone {
       border: 2px dashed #33333d;
       border-radius: 12px;
@@ -84,7 +81,6 @@
       background: #14141a;
     }
 
-    /* Platform Aspect Ratio Selector */
     .platform-selector {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
@@ -108,14 +104,12 @@
       border-color: var(--accent-color);
     }
 
-    /* 10 Styles Grid */
     .styles-grid {
       display: grid;
       grid-template-columns: repeat(2, 1fr);
       gap: 6px;
     }
 
-    /* Custom Input Styling */
     input[type="text"], input[type="file"] {
       width: 100%;
       padding: 10px 12px;
@@ -127,7 +121,6 @@
       font-size: 0.9rem;
     }
 
-    /* Canvas Preview Area */
     .preview-panel {
       background: var(--card-bg);
       border-radius: 16px;
@@ -180,11 +173,9 @@
 <body>
 
   <div class="app-container">
-    <!-- Controls Sidebar -->
     <div class="controls-panel">
       <h1>vizzzuals</h1>
 
-      <!-- File Dropzone -->
       <div>
         <div class="section-title">Audio File</div>
         <div class="dropzone" id="dropzone">
@@ -193,7 +184,6 @@
         </div>
       </div>
 
-      <!-- Platform / Aspect Ratio -->
       <div>
         <div class="section-title">Platform Ratio</div>
         <div class="platform-selector">
@@ -203,31 +193,28 @@
         </div>
       </div>
 
-      <!-- 10 Visualizer Styles Selector -->
       <div>
-        <div class="section-title">Visualizer Style (10 Options)</div>
+        <div class="section-title">Visualizer Style (Dynamic Presets)</div>
         <div class="styles-grid">
-          <button class="style-btn active" data-style="1">1. Glowing Bars</button>
-          <button class="style-btn" data-style="2">2. Center Pulse Ring</button>
-          <button class="style-btn" data-style="3">3. Radial Frequency</button>
-          <button class="style-btn" data-style="4">4. Smooth Waveform</button>
-          <button class="style-btn" data-style="5">5. Vinyl Disc Spin</button>
-          <button class="style-btn" data-style="6">6. Neon Spectrum</button>
-          <button class="style-btn" data-style="7">7. Shockwave Pulses</button>
-          <button class="style-btn" data-style="8">8. Matrix Rain Beat</button>
-          <button class="style-btn" data-style="9">9. Mirror Bars</button>
-          <button class="style-btn" data-style="10">10. Minimalist Dots</button>
+          <button class="style-btn active" data-style="1">1. Audio Scanner</button>
+          <button class="style-btn" data-style="2">2. Orbiting Pulsar</button>
+          <button class="style-btn" data-style="3">3. Floating Horizon</button>
+          <button class="style-btn" data-style="4">4. Cyber Snake</button>
+          <button class="style-btn" data-style="5">5. Floating Vinyl</button>
+          <button class="style-btn" data-style="6">6. Particle Storm</button>
+          <button class="style-btn" data-style="7">7. Soundwave Tunnel</button>
+          <button class="style-btn" data-style="8">8. Bass Warp Grid</button>
+          <button class="style-btn" data-style="9">9. Traveling DNA</button>
+          <button class="style-btn" data-style="10">10. Neon Ring Flow</button>
         </div>
       </div>
 
-      <!-- Track Info Input -->
       <div>
         <div class="section-title">Track Details</div>
         <input type="text" id="trackTitle" placeholder="Track Title" style="margin-bottom: 8px;">
         <input type="text" id="artistName" placeholder="Artist / Producer">
       </div>
 
-      <!-- Background Image -->
       <div>
         <div class="section-title">Background Image (Optional)</div>
         <input type="file" id="bgInput" accept="image/*">
@@ -236,7 +223,6 @@
       <button class="action-btn" id="exportBtn">Export MP4 Video</button>
     </div>
 
-    <!-- Live Preview Area -->
     <div class="preview-panel">
       <div class="canvas-wrapper">
         <canvas id="visualizerCanvas" width="1080" height="1920"></canvas>
@@ -265,6 +251,12 @@
     let recordingInterval = null;
     let startTime = 0;
     let currentStyle = '1';
+
+    // Motion variables for screen traversal
+    let scanPos = 0;
+    let scanDirection = 1;
+    let orbitAngle = 0;
+    let particles = [];
 
     const ratios = {
       '9:16': { width: 1080, height: 1920 },
@@ -342,6 +334,18 @@
       audioElement.play();
       isPlaying = true;
 
+      // Initialize dynamic particle system
+      particles = [];
+      for(let i=0; i<80; i++) {
+        particles.push({
+          x: Math.random() * canvas.width,
+          y: Math.random() * canvas.height,
+          vx: (Math.random() - 0.5) * 4,
+          vy: (Math.random() - 0.5) * 4,
+          size: Math.random() * 4 + 2
+        });
+      }
+
       if (animationId) cancelAnimationFrame(animationId);
       drawVisualizer();
     }
@@ -366,63 +370,65 @@
       const dataArray = new Uint8Array(bufferLength);
       analyser.getByteFrequencyData(dataArray);
 
-      // Average volume for pulse reactions
-      let sum = 0;
-      for(let i=0; i<bufferLength; i++) sum += dataArray[i];
-      let avg = sum / bufferLength;
+      let bassSum = 0;
+      for (let i = 0; i < 10; i++) bassSum += dataArray[i];
+      let bassAvg = bassSum / 10; // Bass magnitude
+
+      let overallSum = 0;
+      for (let i = 0; i < bufferLength; i++) overallSum += dataArray[i];
+      let overallAvg = overallSum / bufferLength;
+
+      // Update scan & orbit positions based on audio energy
+      scanPos += (2 + (bassAvg * 0.05)) * scanDirection;
+      if (scanPos > height * 0.7 || scanPos < 0) scanDirection *= -1;
+
+      orbitAngle += 0.02 + (overallAvg * 0.0005);
 
       ctx.save();
       switch(currentStyle) {
-        case '1': // Glowing Bars
+        case '1': // Audio Scanner (Bars move top to bottom following audio intensity)
           {
-            const barWidth = (width / bufferLength) * 2.5;
-            let x = (width - (bufferLength * barWidth)) / 2;
+            const y = height * 0.2 + scanPos;
+            const barWidth = width / bufferLength;
             for (let i = 0; i < bufferLength; i++) {
-              const barHeight = (dataArray[i] / 255) * (height * 0.4);
-              ctx.fillStyle = '#7257ff';
+              const h = (dataArray[i] / 255) * (height * 0.3);
+              ctx.fillStyle = `hsl(${180 + (i * 3)}, 100%, 60%)`;
               ctx.shadowBlur = 15;
-              ctx.shadowColor = '#7257ff';
-              ctx.fillRect(x, (height / 2) - (barHeight / 2), barWidth - 2, barHeight);
-              x += barWidth + 2;
+              ctx.shadowColor = `hsl(${180 + (i * 3)}, 100%, 60%)`;
+              ctx.fillRect(i * barWidth, y - (h/2), barWidth - 2, h);
             }
-          }
-          break;
 
-        case '2': // Center Pulse Ring
-          {
-            let radius = 150 + (avg * 0.8);
-            ctx.beginPath();
-            ctx.arc(width / 2, height / 2, radius, 0, Math.PI * 2);
-            ctx.strokeStyle = '#7257ff';
-            ctx.lineWidth = 8;
-            ctx.shadowBlur = 25;
-            ctx.shadowColor = '#7257ff';
-            ctx.stroke();
-
-            ctx.beginPath();
-            ctx.arc(width / 2, height / 2, radius * 0.7, 0, Math.PI * 2);
+            // Laser Scanline
             ctx.strokeStyle = '#ff4757';
-            ctx.lineWidth = 4;
+            ctx.lineWidth = 3;
+            ctx.shadowBlur = 20;
+            ctx.shadowColor = '#ff4757';
+            ctx.beginPath();
+            ctx.moveTo(0, y);
+            ctx.lineTo(width, y);
             ctx.stroke();
           }
           break;
 
-        case '3': // Radial Frequency Circle
+        case '2': // Orbiting Pulsar (Ring orbits around the canvas reacting to bass)
           {
-            const cx = width / 2;
-            const cy = height / 2;
-            const r = 200;
-            ctx.translate(cx, cy);
-            for (let i = 0; i < bufferLength; i++) {
-              const angle = (i * 2 * Math.PI) / bufferLength;
-              const barLen = (dataArray[i] / 255) * 200;
-              const x1 = Math.cos(angle) * r;
-              const y1 = Math.sin(angle) * r;
-              const x2 = Math.cos(angle) * (r + barLen);
-              const y2 = Math.sin(angle) * (r + barLen);
+            const cx = width / 2 + Math.cos(orbitAngle) * (width * 0.25);
+            const cy = height / 2 + Math.sin(orbitAngle * 1.5) * (height * 0.2);
+            const baseRadius = 120 + (bassAvg * 0.8);
 
-              ctx.strokeStyle = `hsl(${i * 3}, 100%, 60%)`;
+            ctx.translate(cx, cy);
+            for (let i = 0; i < bufferLength; i += 2) {
+              const angle = (i * 2 * Math.PI) / bufferLength;
+              const len = (dataArray[i] / 255) * 150;
+              const x1 = Math.cos(angle) * baseRadius;
+              const y1 = Math.sin(angle) * baseRadius;
+              const x2 = Math.cos(angle) * (baseRadius + len);
+              const y2 = Math.sin(angle) * (baseRadius + len);
+
+              ctx.strokeStyle = `hsl(${260 + (i * 2)}, 100%, 65%)`;
               ctx.lineWidth = 4;
+              ctx.shadowBlur = 10;
+              ctx.shadowColor = `hsl(${260 + (i * 2)}, 100%, 65%)`;
               ctx.beginPath();
               ctx.moveTo(x1, y1);
               ctx.lineTo(x2, y2);
@@ -431,132 +437,190 @@
           }
           break;
 
-        case '4': // Smooth Waveform line
+        case '3': // Floating Horizon (Perspective waveform sweeping across the screen)
           {
+            const startY = height * 0.5 + Math.sin(performance.now() * 0.002) * (height * 0.1);
+            const slice = width / bufferLength;
             ctx.beginPath();
-            ctx.lineWidth = 6;
-            ctx.strokeStyle = '#2ed573';
-            ctx.shadowBlur = 20;
-            ctx.shadowColor = '#2ed573';
-            const sliceWidth = width / bufferLength;
-            let x = 0;
+            ctx.moveTo(0, startY);
             for (let i = 0; i < bufferLength; i++) {
-              const v = dataArray[i] / 128.0;
-              const y = (v * height / 2);
-              if (i === 0) ctx.moveTo(x, y);
-              else ctx.lineTo(x, y);
-              x += sliceWidth;
+              const x = i * slice;
+              const offset = ((dataArray[i] / 255) - 0.5) * (height * 0.35);
+              ctx.lineTo(x, startY + offset);
             }
+            ctx.strokeStyle = '#00d2d3';
+            ctx.lineWidth = 6;
+            ctx.shadowBlur = 25;
+            ctx.shadowColor = '#00d2d3';
             ctx.stroke();
           }
           break;
 
-        case '5': // Vinyl Disc Spin
+        case '4': // Cyber Snake (Continuous glowing path moving across the canvas)
           {
-            const cx = width / 2;
-            const cy = height / 2;
-            const vinylR = 250 + (avg * 0.2);
-            ctx.save();
-            ctx.translate(cx, cy);
-            ctx.rotate(performance.now() * 0.002);
-
-            // Vinyl Base
             ctx.beginPath();
-            ctx.arc(0, 0, vinylR, 0, Math.PI * 2);
+            const time = performance.now() * 0.003;
+            for (let i = 0; i < bufferLength; i++) {
+              const progress = i / bufferLength;
+              const x = (progress * width + (time * 100)) % width;
+              const amp = (dataArray[i] / 255) * (height * 0.25);
+              const y = (height / 2) + Math.sin(progress * Math.PI * 4 + time) * 200 + amp;
+
+              if (i === 0) ctx.moveTo(x, y);
+              else ctx.lineTo(x, y);
+            }
+            ctx.strokeStyle = '#ff9f43';
+            ctx.lineWidth = 8;
+            ctx.shadowBlur = 20;
+            ctx.shadowColor = '#ff9f43';
+            ctx.stroke();
+          }
+          break;
+
+        case '5': // Floating Vinyl (Album disc floating around the screen reacting to music)
+          {
+            const cx = width / 2 + Math.sin(orbitAngle * 0.8) * (width * 0.2);
+            const cy = height / 2 + Math.cos(orbitAngle * 1.2) * (height * 0.15);
+            const radius = 220 + (bassAvg * 0.4);
+
+            ctx.translate(cx, cy);
+            ctx.rotate(orbitAngle * 2);
+
+            ctx.beginPath();
+            ctx.arc(0, 0, radius, 0, Math.PI * 2);
             ctx.fillStyle = '#111';
             ctx.shadowBlur = 30;
-            ctx.shadowColor = '#000';
+            ctx.shadowColor = '#7257ff';
             ctx.fill();
-            ctx.lineWidth = 5;
+            ctx.lineWidth = 4;
             ctx.strokeStyle = '#333';
             ctx.stroke();
 
-            // Grooves
-            for(let r=80; r<vinylR; r+=25) {
+            // Frequency bars sprouting from the disc border
+            for (let i = 0; i < bufferLength; i += 3) {
+              const angle = (i * 2 * Math.PI) / bufferLength;
+              const len = (dataArray[i] / 255) * 80;
+              ctx.strokeStyle = '#7257ff';
+              ctx.lineWidth = 3;
               ctx.beginPath();
-              ctx.arc(0, 0, r, 0, Math.PI * 2);
-              ctx.strokeStyle = '#222';
-              ctx.lineWidth = 2;
+              ctx.moveTo(Math.cos(angle) * radius, Math.sin(angle) * radius);
+              ctx.lineTo(Math.cos(angle) * (radius + len), Math.sin(angle) * (radius + len));
               ctx.stroke();
             }
-
-            // Center Label
-            ctx.beginPath();
-            ctx.arc(0, 0, 70, 0, Math.PI * 2);
-            ctx.fillStyle = '#7257ff';
-            ctx.fill();
-            ctx.restore();
           }
           break;
 
-        case '6': // Neon Spectrum Bars
+        case '6': // Particle Storm (Particles speed up and travel based on beat velocity)
           {
-            const barWidth = width / bufferLength;
-            for (let i = 0; i < bufferLength; i++) {
-              const barHeight = (dataArray[i] / 255) * (height * 0.6);
-              ctx.fillStyle = `hsl(${i * 4}, 100%, 50%)`;
-              ctx.shadowBlur = 12;
-              ctx.shadowColor = `hsl(${i * 4}, 100%, 50%)`;
-              ctx.fillRect(i * barWidth, height - barHeight, barWidth - 1, barHeight);
-            }
+            particles.forEach((p, idx) => {
+              const energy = dataArray[idx % bufferLength] / 255;
+              p.x += p.vx * (1 + energy * 4);
+              p.y += p.vy * (1 + energy * 4);
+
+              if (p.x < 0) p.x = width;
+              if (p.x > width) p.x = 0;
+              if (p.y < 0) p.y = height;
+              if (p.y > height) p.y = 0;
+
+              ctx.beginPath();
+              ctx.arc(p.x, p.y, p.size + (energy * 10), 0, Math.PI * 2);
+              ctx.fillStyle = `hsl(${energy * 360}, 100%, 60%)`;
+              ctx.shadowBlur = 15;
+              ctx.shadowColor = `hsl(${energy * 360}, 100%, 60%)`;
+              ctx.fill();
+            });
           }
           break;
 
-        case '7': // Shockwave Pulses
+        case '7': // Soundwave Tunnel (Concentric expanding rings sweeping toward the viewer)
           {
             const cx = width / 2;
             const cy = height / 2;
-            for(let k=1; k<=3; k++) {
-              let r = (avg * 3 * k) + (performance.now() * 0.1 % 300);
+            for (let i = 0; i < 8; i++) {
+              const energy = dataArray[i * 4] / 255;
+              const r = ((performance.now() * 0.2 + (i * 100)) % (width * 0.6)) + (energy * 50);
               ctx.beginPath();
               ctx.arc(cx, cy, r, 0, Math.PI * 2);
-              ctx.strokeStyle = `rgba(114, 87, 255, ${Math.max(0, 1 - (r/600))})`;
-              ctx.lineWidth = 5;
+              ctx.strokeStyle = `rgba(114, 87, 255, ${Math.max(0, 1 - (r / (width * 0.6)))})`;
+              ctx.lineWidth = 4 + (energy * 8);
+              ctx.shadowBlur = 15;
+              ctx.shadowColor = '#7257ff';
               ctx.stroke();
             }
           }
           break;
 
-        case '8': // Matrix Rain Beat
+        case '8': // Bass Warp Grid (Dynamic reactive grid flexing to the 808s)
           {
-            ctx.fillStyle = '#00ff66';
-            ctx.font = '24px monospace';
-            for(let i=0; i<bufferLength; i+=4) {
-              let char = String.fromCharCode(65 + Math.floor(Math.random() * 26));
-              let x = (i / bufferLength) * width;
-              let y = (dataArray[i] / 255) * height;
-              ctx.fillText(char, x, y);
-            }
-          }
-          break;
+            const gridSpacing = 80;
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.15)';
+            ctx.lineWidth = 2;
 
-        case '9': // Mirror Bars
-          {
-            const barWidth = (width / bufferLength) * 2;
-            let x = (width - (bufferLength * barWidth)) / 2;
-            for (let i = 0; i < bufferLength; i++) {
-              const barHeight = (dataArray[i] / 255) * (height * 0.3);
-              ctx.fillStyle = '#ff9f43';
-              ctx.shadowBlur = 10;
-              ctx.shadowColor = '#ff9f43';
-              ctx.fillRect(x, height/2 - barHeight, barWidth - 2, barHeight);
-              ctx.fillRect(x, height/2, barWidth - 2, barHeight);
-              x += barWidth;
-            }
-          }
-          break;
-
-        case '10': // Minimalist Dots
-          {
-            const radiusStep = width / bufferLength;
-            for (let i = 0; i < bufferLength; i++) {
-              let x = i * radiusStep;
-              let y = height / 2 + Math.sin(i + performance.now()*0.005) * (dataArray[i] * 0.8);
+            for (let x = 0; x < width; x += gridSpacing) {
               ctx.beginPath();
-              ctx.arc(x, y, (dataArray[i] / 255) * 12, 0, Math.PI * 2);
-              ctx.fillStyle = '#ffffff';
+              for (let y = 0; y < height; y += 40) {
+                const idx = Math.floor((x + y) / 10) % bufferLength;
+                const offset = (dataArray[idx] / 255) * 30;
+                if (y === 0) ctx.moveTo(x + offset, y);
+                else ctx.lineTo(x + offset, y);
+              }
+              ctx.strokeStyle = '#54a0ff';
+              ctx.stroke();
+            }
+          }
+          break;
+
+        case '9': // Traveling DNA Helix (Symmetrical double helix moving horizontally)
+          {
+            const cx = width / 2;
+            const time = performance.now() * 0.004;
+            for (let i = 0; i < bufferLength; i++) {
+              const y = (i / bufferLength) * height;
+              const energy = dataArray[i] / 255;
+              const offset1 = Math.sin(time + (i * 0.15)) * (200 + (energy * 100));
+              const offset2 = -offset1;
+
+              ctx.fillStyle = '#ff4757';
+              ctx.beginPath();
+              ctx.arc(cx + offset1, y, 6 + (energy * 6), 0, Math.PI * 2);
+              ctx.fill();
+
+              ctx.fillStyle = '#2ed573';
+              ctx.beginPath();
+              ctx.arc(cx + offset2, y, 6 + (energy * 6), 0, Math.PI * 2);
+              ctx.fill();
+
+              if (i % 2 === 0) {
+                ctx.strokeStyle = 'rgba(255, 255, 255, 0.2)';
+                ctx.beginPath();
+                ctx.moveTo(cx + offset1, y);
+                ctx.lineTo(cx + offset2, y);
+                ctx.stroke();
+              }
+            }
+          }
+          break;
+
+        case '10': // Neon Ring Flow (Tilted ring shifting position and pulsating)
+          {
+            const cx = width / 2 + Math.sin(orbitAngle) * 80;
+            const cy = height / 2 + Math.cos(orbitAngle) * 80;
+
+            ctx.translate(cx, cy);
+            ctx.scale(1, 0.4); // Tilt effect
+            ctx.rotate(orbitAngle);
+
+            for (let i = 0; i < bufferLength; i++) {
+              const angle = (i * 2 * Math.PI) / bufferLength;
+              const r = 300 + ((dataArray[i] / 255) * 180);
+              const x = Math.cos(angle) * r;
+              const y = Math.sin(angle) * r;
+
+              ctx.fillStyle = `hsl(${i * 4}, 100%, 60%)`;
               ctx.shadowBlur = 15;
-              ctx.shadowColor = '#00d2d3';
+              ctx.shadowColor = `hsl(${i * 4}, 100%, 60%)`;
+              ctx.beginPath();
+              ctx.arc(x, y, 8, 0, Math.PI * 2);
               ctx.fill();
             }
           }
@@ -564,7 +628,7 @@
       }
       ctx.restore();
 
-      // Track Text Overlay
+      // Track Details Overlay
       const title = document.getElementById('trackTitle').value;
       const artist = document.getElementById('artistName').value;
       if (title || artist) {

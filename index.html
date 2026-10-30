@@ -7,9 +7,10 @@
   <script src="https://cdn.jsdelivr.net/npm/mp4-muxer@5.1.0/build/mp4-muxer.min.js"></script>
   <style>
     :root {
-      --bg-color: #0b0b0e;
-      --card-bg: #16161a;
+      --bg-color: #08080c;
+      --card-bg: #121217;
       --accent-color: #7257ff;
+      --accent-hover: #5d3eff;
       --text-main: #fffffe;
       --text-muted: #94a1b2;
     }
@@ -46,7 +47,7 @@
       display: flex;
       flex-direction: column;
       gap: 18px;
-      border: 1px solid #242429;
+      border: 1px solid #1e1e26;
       max-height: 90vh;
       overflow-y: auto;
     }
@@ -67,18 +68,46 @@
     }
 
     .dropzone {
-      border: 2px dashed #33333d;
+      border: 2px dashed #2a2a36;
       border-radius: 12px;
       padding: 20px;
       text-align: center;
       cursor: pointer;
       transition: all 0.2s ease;
-      background: #101014;
+      background: #0d0d12;
     }
 
     .dropzone:hover {
       border-color: var(--accent-color);
-      background: #14141a;
+      background: #12121c;
+    }
+
+    .playback-bar {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .play-btn {
+      flex: 1;
+      padding: 12px;
+      background: #20202d;
+      border: 1px solid #323246;
+      color: #fff;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 0.95rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .play-btn:hover {
+      background: var(--accent-color);
+      border-color: var(--accent-color);
     }
 
     .platform-selector {
@@ -88,10 +117,10 @@
     }
 
     .platform-btn, .style-btn {
-      background: #202026;
-      border: 1px solid #2e2e38;
+      background: #181822;
+      border: 1px solid #282836;
       color: var(--text-main);
-      padding: 8px;
+      padding: 9px;
       border-radius: 8px;
       font-size: 0.75rem;
       cursor: pointer;
@@ -102,6 +131,7 @@
     .platform-btn.active, .style-btn.active {
       background: var(--accent-color);
       border-color: var(--accent-color);
+      box-shadow: 0 0 12px rgba(114, 87, 255, 0.4);
     }
 
     .styles-grid {
@@ -110,11 +140,11 @@
       gap: 6px;
     }
 
-    input[type="text"], input[type="file"] {
+    input[type="file"] {
       width: 100%;
       padding: 10px 12px;
-      background: #101014;
-      border: 1px solid #2a2a32;
+      background: #0d0d12;
+      border: 1px solid #222230;
       border-radius: 8px;
       color: #fff;
       outline: none;
@@ -129,7 +159,7 @@
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      border: 1px solid #242429;
+      border: 1px solid #1e1e26;
       min-height: 500px;
     }
 
@@ -140,9 +170,9 @@
       align-items: center;
       justify-content: center;
       background: #000;
-      border-radius: 8px;
+      border-radius: 12px;
       overflow: hidden;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+      box-shadow: 0 15px 40px rgba(0,0,0,0.7);
     }
 
     canvas {
@@ -162,11 +192,11 @@
       font-weight: 700;
       font-size: 1rem;
       cursor: pointer;
-      transition: opacity 0.2s;
+      transition: all 0.2s;
     }
 
     .action-btn:hover {
-      opacity: 0.9;
+      background: var(--accent-hover);
     }
   </style>
 </head>
@@ -185,6 +215,15 @@
       </div>
 
       <div>
+        <div class="section-title">Playback</div>
+        <div class="playback-bar">
+          <button class="play-btn" id="playPauseBtn" disabled>
+            <span id="playIcon">▶</span> <span id="playText">Play</span>
+          </button>
+        </div>
+      </div>
+
+      <div>
         <div class="section-title">Platform Ratio</div>
         <div class="platform-selector">
           <button class="platform-btn active" data-ratio="9:16">Story (9:16)</button>
@@ -194,25 +233,19 @@
       </div>
 
       <div>
-        <div class="section-title">Visualizer Style (Dynamic Presets)</div>
+        <div class="section-title">Visualizer Presets</div>
         <div class="styles-grid">
-          <button class="style-btn active" data-style="1">1. Audio Scanner</button>
-          <button class="style-btn" data-style="2">2. Orbiting Pulsar</button>
-          <button class="style-btn" data-style="3">3. Floating Horizon</button>
-          <button class="style-btn" data-style="4">4. Cyber Snake</button>
-          <button class="style-btn" data-style="5">5. Floating Vinyl</button>
-          <button class="style-btn" data-style="6">6. Particle Storm</button>
-          <button class="style-btn" data-style="7">7. Soundwave Tunnel</button>
-          <button class="style-btn" data-style="8">8. Bass Warp Grid</button>
-          <button class="style-btn" data-style="9">9. Traveling DNA</button>
-          <button class="style-btn" data-style="10">10. Neon Ring Flow</button>
+          <button class="style-btn active" data-style="1">1. Cyber Synthwave</button>
+          <button class="style-btn" data-style="2">2. Hyperdrive Portal</button>
+          <button class="style-btn" data-style="3">3. Neon Horizon</button>
+          <button class="style-btn" data-style="4">4. Plasma Ribbon</button>
+          <button class="style-btn" data-style="5">5. Vinyl Overdrive</button>
+          <button class="style-btn" data-style="6">6. Cosmic Nebula</button>
+          <button class="style-btn" data-style="7">7. 808 Shockwave</button>
+          <button class="style-btn" data-style="8">8. Digital Matrix</button>
+          <button class="style-btn" data-style="9">9. Spectral Helix</button>
+          <button class="style-btn" data-style="10">10. Quantum Field</button>
         </div>
-      </div>
-
-      <div>
-        <div class="section-title">Track Details</div>
-        <input type="text" id="trackTitle" placeholder="Track Title" style="margin-bottom: 8px;">
-        <input type="text" id="artistName" placeholder="Artist / Producer">
       </div>
 
       <div>
@@ -239,6 +272,9 @@
     const platformBtns = document.querySelectorAll('.platform-btn');
     const styleBtns = document.querySelectorAll('.style-btn');
     const exportBtn = document.getElementById('exportBtn');
+    const playPauseBtn = document.getElementById('playPauseBtn');
+    const playIcon = document.getElementById('playIcon');
+    const playText = document.getElementById('playText');
 
     let audioContext, audioElement, analyser, sourceNode;
     let audioFile = null;
@@ -252,11 +288,10 @@
     let startTime = 0;
     let currentStyle = '1';
 
-    // Motion variables for screen traversal
-    let scanPos = 0;
-    let scanDirection = 1;
-    let orbitAngle = 0;
+    let time = 0;
+    let stars = [];
     let particles = [];
+    let shockwaves = [];
 
     const ratios = {
       '9:16': { width: 1080, height: 1920 },
@@ -272,6 +307,7 @@
         currentRatio = btn.getAttribute('data-ratio');
         canvas.width = ratios[currentRatio].width;
         canvas.height = ratios[currentRatio].height;
+        initParticles();
       });
     });
 
@@ -285,10 +321,10 @@
 
     dropzone.addEventListener('click', () => audioInput.click());
     dropzone.addEventListener('dragover', (e) => { e.preventDefault(); dropzone.style.borderColor = 'var(--accent-color)'; });
-    dropzone.addEventListener('dragleave', () => { dropzone.style.borderColor = '#33333d'; });
+    dropzone.addEventListener('dragleave', () => { dropzone.style.borderColor = '#2a2a36'; });
     dropzone.addEventListener('drop', (e) => {
       e.preventDefault();
-      dropzone.style.borderColor = '#33333d';
+      dropzone.style.borderColor = '#2a2a36';
       if (e.dataTransfer.files.length) handleAudioFile(e.dataTransfer.files[0]);
     });
 
@@ -310,345 +346,433 @@
     function handleAudioFile(file) {
       audioFile = URL.createObjectURL(file);
       dropzone.querySelector('p').textContent = `Loaded: ${file.name}`;
-      const titleInput = document.getElementById('trackTitle');
-      if (!titleInput.value) {
-        titleInput.value = file.name.replace(/\.[^/.]+$/, "");
-      }
       setupAudioContext();
     }
 
     function setupAudioContext() {
-      if (audioElement) audioElement.pause();
+      if (audioElement) {
+        audioElement.pause();
+      }
 
       audioElement = new Audio(audioFile);
       audioElement.crossOrigin = "anonymous";
-      
+
       audioContext = new (window.AudioContext || window.webkitAudioContext)();
       analyser = audioContext.createAnalyser();
-      analyser.fftSize = 256;
+      analyser.fftSize = 512;
+      analyser.smoothingTimeConstant = 0.82;
 
       sourceNode = audioContext.createMediaElementSource(audioElement);
       sourceNode.connect(analyser);
       analyser.connect(audioContext.destination);
 
-      audioElement.play();
-      isPlaying = true;
+      playPauseBtn.disabled = false;
+      togglePlay(true);
 
-      // Initialize dynamic particle system
-      particles = [];
-      for(let i=0; i<80; i++) {
-        particles.push({
-          x: Math.random() * canvas.width,
-          y: Math.random() * canvas.height,
-          vx: (Math.random() - 0.5) * 4,
-          vy: (Math.random() - 0.5) * 4,
-          size: Math.random() * 4 + 2
-        });
-      }
+      initParticles();
 
       if (animationId) cancelAnimationFrame(animationId);
       drawVisualizer();
     }
 
+    function togglePlay(forceState) {
+      if (!audioElement) return;
+
+      if (forceState !== undefined) {
+        isPlaying = forceState;
+      } else {
+        isPlaying = !isPlaying;
+      }
+
+      if (isPlaying) {
+        if (audioContext.state === 'suspended') {
+          audioContext.resume();
+        }
+        audioElement.play();
+        playIcon.textContent = '❚❚';
+        playText.textContent = 'Pause';
+      } else {
+        audioElement.pause();
+        playIcon.textContent = '▶';
+        playText.textContent = 'Play';
+      }
+    }
+
+    playPauseBtn.addEventListener('click', () => togglePlay());
+
+    function initParticles() {
+      stars = [];
+      particles = [];
+      for (let i = 0; i < 150; i++) {
+        stars.push({
+          x: (Math.random() - 0.5) * canvas.width * 2,
+          y: (Math.random() - 0.5) * canvas.height * 2,
+          z: Math.random() * canvas.width,
+          size: Math.random() * 2 + 1
+        });
+      }
+      for (let i = 0; i < 100; i++) {
+        particles.push({
+          x: Math.random() * canvas.width,
+          y: Math.random() * canvas.height,
+          vx: (Math.random() - 0.5) * 3,
+          vy: (Math.random() - 0.5) * 3,
+          radius: Math.random() * 4 + 2,
+          hue: Math.random() * 360
+        });
+      }
+    }
+
     function drawVisualizer() {
       animationId = requestAnimationFrame(drawVisualizer);
+      time += 0.015;
 
       const width = canvas.width;
       const height = canvas.height;
-      ctx.clearRect(0, 0, width, height);
+
+      ctx.fillStyle = bgImage ? 'rgba(5, 5, 8, 0.45)' : 'rgba(8, 8, 12, 0.35)';
+      ctx.fillRect(0, 0, width, height);
 
       if (bgImage) {
+        ctx.save();
+        ctx.globalAlpha = 0.35;
         ctx.drawImage(bgImage, 0, 0, width, height);
-        ctx.fillStyle = 'rgba(0, 0, 0, 0.55)';
-        ctx.fillRect(0, 0, width, height);
-      } else {
-        ctx.fillStyle = '#050507';
-        ctx.fillRect(0, 0, width, height);
+        ctx.restore();
       }
+
+      if (!analyser) return;
 
       const bufferLength = analyser.frequencyBinCount;
       const dataArray = new Uint8Array(bufferLength);
       analyser.getByteFrequencyData(dataArray);
 
-      let bassSum = 0;
-      for (let i = 0; i < 10; i++) bassSum += dataArray[i];
-      let bassAvg = bassSum / 10; // Bass magnitude
+      let bass = 0, mid = 0, treble = 0;
+      for (let i = 0; i < 12; i++) bass += dataArray[i];
+      for (let i = 12; i < 80; i++) mid += dataArray[i];
+      for (let i = 80; i < bufferLength; i++) treble += dataArray[i];
 
-      let overallSum = 0;
-      for (let i = 0; i < bufferLength; i++) overallSum += dataArray[i];
-      let overallAvg = overallSum / bufferLength;
-
-      // Update scan & orbit positions based on audio energy
-      scanPos += (2 + (bassAvg * 0.05)) * scanDirection;
-      if (scanPos > height * 0.7 || scanPos < 0) scanDirection *= -1;
-
-      orbitAngle += 0.02 + (overallAvg * 0.0005);
+      bass = bass / 12;
+      mid = mid / 68;
+      treble = treble / (bufferLength - 80);
 
       ctx.save();
+      if (bass > 210) {
+        const shakeX = (Math.random() - 0.5) * (bass * 0.08);
+        const shakeY = (Math.random() - 0.5) * (bass * 0.08);
+        ctx.translate(shakeX, shakeY);
+      }
+
       switch(currentStyle) {
-        case '1': // Audio Scanner (Bars move top to bottom following audio intensity)
+        case '1':
           {
-            const y = height * 0.2 + scanPos;
-            const barWidth = width / bufferLength;
-            for (let i = 0; i < bufferLength; i++) {
-              const h = (dataArray[i] / 255) * (height * 0.3);
-              ctx.fillStyle = `hsl(${180 + (i * 3)}, 100%, 60%)`;
-              ctx.shadowBlur = 15;
-              ctx.shadowColor = `hsl(${180 + (i * 3)}, 100%, 60%)`;
-              ctx.fillRect(i * barWidth, y - (h/2), barWidth - 2, h);
-            }
-
-            // Laser Scanline
-            ctx.strokeStyle = '#ff4757';
-            ctx.lineWidth = 3;
-            ctx.shadowBlur = 20;
-            ctx.shadowColor = '#ff4757';
+            const horizon = height * 0.6;
+            const sunR = 140 + (bass * 0.4);
+            const sunG = ctx.createRadialGradient(width/2, horizon - 50, 10, width/2, horizon - 50, sunR);
+            sunG.addColorStop(0, '#ff9f43');
+            sunG.addColorStop(0.5, '#ee5253');
+            sunG.addColorStop(1, 'rgba(238, 82, 83, 0)');
+            ctx.fillStyle = sunG;
             ctx.beginPath();
-            ctx.moveTo(0, y);
-            ctx.lineTo(width, y);
-            ctx.stroke();
-          }
-          break;
+            ctx.arc(width/2, horizon - 50, sunR, 0, Math.PI * 2);
+            ctx.fill();
 
-        case '2': // Orbiting Pulsar (Ring orbits around the canvas reacting to bass)
-          {
-            const cx = width / 2 + Math.cos(orbitAngle) * (width * 0.25);
-            const cy = height / 2 + Math.sin(orbitAngle * 1.5) * (height * 0.2);
-            const baseRadius = 120 + (bassAvg * 0.8);
+            ctx.strokeStyle = '#00d2d3';
+            ctx.lineWidth = 2;
+            ctx.shadowBlur = 12;
+            ctx.shadowColor = '#00d2d3';
+            const speed = (time * 150) % 60;
 
-            ctx.translate(cx, cy);
-            for (let i = 0; i < bufferLength; i += 2) {
-              const angle = (i * 2 * Math.PI) / bufferLength;
-              const len = (dataArray[i] / 255) * 150;
-              const x1 = Math.cos(angle) * baseRadius;
-              const y1 = Math.sin(angle) * baseRadius;
-              const x2 = Math.cos(angle) * (baseRadius + len);
-              const y2 = Math.sin(angle) * (baseRadius + len);
-
-              ctx.strokeStyle = `hsl(${260 + (i * 2)}, 100%, 65%)`;
-              ctx.lineWidth = 4;
-              ctx.shadowBlur = 10;
-              ctx.shadowColor = `hsl(${260 + (i * 2)}, 100%, 65%)`;
+            for (let y = horizon; y < height; y += 25) {
+              const pY = y + (speed * ((y - horizon) / (height - horizon)));
               ctx.beginPath();
-              ctx.moveTo(x1, y1);
-              ctx.lineTo(x2, y2);
+              ctx.moveTo(0, pY);
+              ctx.lineTo(width, pY);
               ctx.stroke();
             }
+
+            for (let x = -width; x < width * 2; x += 100) {
+              ctx.beginPath();
+              ctx.moveTo(x, height);
+              ctx.lineTo(width/2 + (x - width/2) * 0.1, horizon);
+              ctx.stroke();
+            }
+
+            const bars = 64;
+            const bWidth = width / bars;
+            for (let i = 0; i < bars; i++) {
+              const val = dataArray[i * 2] / 255;
+              const h = val * (height * 0.28);
+              ctx.fillStyle = `hsl(${280 + (i * 2)}, 100%, 65%)`;
+              ctx.shadowBlur = 15;
+              ctx.shadowColor = `hsl(${280 + (i * 2)}, 100%, 65%)`;
+              ctx.fillRect(i * bWidth, horizon - h, bWidth - 3, h);
+            }
           }
           break;
 
-        case '3': // Floating Horizon (Perspective waveform sweeping across the screen)
+        case '2':
           {
-            const startY = height * 0.5 + Math.sin(performance.now() * 0.002) * (height * 0.1);
-            const slice = width / bufferLength;
-            ctx.beginPath();
-            ctx.moveTo(0, startY);
-            for (let i = 0; i < bufferLength; i++) {
-              const x = i * slice;
-              const offset = ((dataArray[i] / 255) - 0.5) * (height * 0.35);
-              ctx.lineTo(x, startY + offset);
-            }
-            ctx.strokeStyle = '#00d2d3';
-            ctx.lineWidth = 6;
-            ctx.shadowBlur = 25;
-            ctx.shadowColor = '#00d2d3';
-            ctx.stroke();
-          }
-          break;
+            const cx = width / 2;
+            const cy = height / 2;
 
-        case '4': // Cyber Snake (Continuous glowing path moving across the canvas)
-          {
-            ctx.beginPath();
-            const time = performance.now() * 0.003;
-            for (let i = 0; i < bufferLength; i++) {
-              const progress = i / bufferLength;
-              const x = (progress * width + (time * 100)) % width;
-              const amp = (dataArray[i] / 255) * (height * 0.25);
-              const y = (height / 2) + Math.sin(progress * Math.PI * 4 + time) * 200 + amp;
+            stars.forEach((s) => {
+              s.z -= 4 + (bass * 0.12);
+              if (s.z <= 0) {
+                s.z = width;
+                s.x = (Math.random() - 0.5) * width * 2;
+                s.y = (Math.random() - 0.5) * height * 2;
+              }
 
-              if (i === 0) ctx.moveTo(x, y);
-              else ctx.lineTo(x, y);
-            }
-            ctx.strokeStyle = '#ff9f43';
+              const k = 400 / s.z;
+              const px = s.x * k + cx;
+              const py = s.y * k + cy;
+
+              if (px >= 0 && px < width && py >= 0 && py < height) {
+                const size = Math.max(1, (1 - s.z / width) * 6 + (bass * 0.03));
+                ctx.fillStyle = `hsl(${200 + (s.z * 0.2)}, 100%, 75%)`;
+                ctx.shadowBlur = 10;
+                ctx.shadowColor = '#7257ff';
+                ctx.beginPath();
+                ctx.arc(px, py, size, 0, Math.PI * 2);
+                ctx.fill();
+              }
+            });
+
+            const r = 160 + (bass * 0.8);
+            ctx.beginPath();
+            ctx.arc(cx, cy, r, 0, Math.PI * 2);
+            ctx.strokeStyle = '#7257ff';
             ctx.lineWidth = 8;
-            ctx.shadowBlur = 20;
-            ctx.shadowColor = '#ff9f43';
-            ctx.stroke();
-          }
-          break;
-
-        case '5': // Floating Vinyl (Album disc floating around the screen reacting to music)
-          {
-            const cx = width / 2 + Math.sin(orbitAngle * 0.8) * (width * 0.2);
-            const cy = height / 2 + Math.cos(orbitAngle * 1.2) * (height * 0.15);
-            const radius = 220 + (bassAvg * 0.4);
-
-            ctx.translate(cx, cy);
-            ctx.rotate(orbitAngle * 2);
-
-            ctx.beginPath();
-            ctx.arc(0, 0, radius, 0, Math.PI * 2);
-            ctx.fillStyle = '#111';
             ctx.shadowBlur = 30;
             ctx.shadowColor = '#7257ff';
-            ctx.fill();
-            ctx.lineWidth = 4;
-            ctx.strokeStyle = '#333';
             ctx.stroke();
+          }
+          break;
 
-            // Frequency bars sprouting from the disc border
-            for (let i = 0; i < bufferLength; i += 3) {
-              const angle = (i * 2 * Math.PI) / bufferLength;
-              const len = (dataArray[i] / 255) * 80;
-              ctx.strokeStyle = '#7257ff';
-              ctx.lineWidth = 3;
+        case '3':
+          {
+            const cy = height / 2;
+            ctx.lineWidth = 5;
+            ctx.shadowBlur = 20;
+
+            for (let layer = 0; layer < 3; layer++) {
               ctx.beginPath();
-              ctx.moveTo(Math.cos(angle) * radius, Math.sin(angle) * radius);
-              ctx.lineTo(Math.cos(angle) * (radius + len), Math.sin(angle) * (radius + len));
+              const color = layer === 0 ? '#ff4757' : layer === 1 ? '#7257ff' : '#00d2d3';
+              ctx.strokeStyle = color;
+              ctx.shadowColor = color;
+
+              for (let i = 0; i < width; i += 10) {
+                const idx = Math.floor((i / width) * bufferLength);
+                const amp = (dataArray[idx] / 255) * (height * 0.22);
+                const y = cy + Math.sin(time * 3 + (i * 0.01) + layer) * 80 + (layer % 2 === 0 ? amp : -amp);
+                if (i === 0) ctx.moveTo(i, y);
+                else ctx.lineTo(i, y);
+              }
               ctx.stroke();
             }
           }
           break;
 
-        case '6': // Particle Storm (Particles speed up and travel based on beat velocity)
+        case '4':
           {
-            particles.forEach((p, idx) => {
-              const energy = dataArray[idx % bufferLength] / 255;
-              p.x += p.vx * (1 + energy * 4);
-              p.y += p.vy * (1 + energy * 4);
+            ctx.beginPath();
+            const points = 80;
+            const step = width / points;
+            for (let i = 0; i <= points; i++) {
+              const idx = Math.floor((i / points) * (bufferLength / 2));
+              const amp = (dataArray[idx] / 255) * (height * 0.3);
+              const x = i * step;
+              const y = (height / 2) + Math.sin(time * 2 + i * 0.1) * 120 + Math.cos(i * 0.2) * amp;
 
-              if (p.x < 0) p.x = width;
-              if (p.x > width) p.x = 0;
-              if (p.y < 0) p.y = height;
-              if (p.y > height) p.y = 0;
+              if (i === 0) ctx.moveTo(x, y);
+              else ctx.quadraticCurveTo(x - step/2, y + (amp * 0.5), x, y);
+            }
+            ctx.strokeStyle = `hsl(${(time * 50) % 360}, 100%, 65%)`;
+            ctx.lineWidth = 10;
+            ctx.shadowBlur = 25;
+            ctx.shadowColor = `hsl(${(time * 50) % 360}, 100%, 65%)`;
+            ctx.stroke();
+          }
+          break;
+
+        case '5':
+          {
+            const cx = width / 2;
+            const cy = height / 2;
+            const r = 240 + (bass * 0.3);
+
+            ctx.save();
+            ctx.translate(cx, cy);
+            ctx.rotate(time * 0.8);
+
+            ctx.beginPath();
+            ctx.arc(0, 0, r, 0, Math.PI * 2);
+            ctx.fillStyle = '#0f0f14';
+            ctx.shadowBlur = 35;
+            ctx.shadowColor = '#7257ff';
+            ctx.fill();
+            ctx.lineWidth = 6;
+            ctx.strokeStyle = '#2a2a38';
+            ctx.stroke();
+
+            const count = 72;
+            for (let i = 0; i < count; i++) {
+              const angle = (i / count) * Math.PI * 2;
+              const len = (dataArray[i * 2] / 255) * 140;
+              ctx.strokeStyle = `hsl(${i * 5}, 100%, 60%)`;
+              ctx.lineWidth = 4;
+              ctx.beginPath();
+              ctx.moveTo(Math.cos(angle) * r, Math.sin(angle) * r);
+              ctx.lineTo(Math.cos(angle) * (r + len), Math.sin(angle) * (r + len));
+              ctx.stroke();
+            }
+
+            ctx.beginPath();
+            ctx.arc(0, 0, 75, 0, Math.PI * 2);
+            ctx.fillStyle = '#7257ff';
+            ctx.fill();
+            ctx.restore();
+          }
+          break;
+
+        case '6':
+          {
+            particles.forEach((p, i) => {
+              const energy = dataArray[i % bufferLength] / 255;
+              p.x += p.vx * (1 + energy * 5);
+              p.y += p.vy * (1 + energy * 5);
+
+              if (p.x < 0 || p.x > width) p.vx *= -1;
+              if (p.y < 0 || p.y > height) p.vy *= -1;
 
               ctx.beginPath();
-              ctx.arc(p.x, p.y, p.size + (energy * 10), 0, Math.PI * 2);
-              ctx.fillStyle = `hsl(${energy * 360}, 100%, 60%)`;
-              ctx.shadowBlur = 15;
-              ctx.shadowColor = `hsl(${energy * 360}, 100%, 60%)`;
+              ctx.arc(p.x, p.y, p.radius + (energy * 12), 0, Math.PI * 2);
+              ctx.fillStyle = `hsl(${(p.hue + time * 20) % 360}, 100%, 65%)`;
+              ctx.shadowBlur = 20;
+              ctx.shadowColor = `hsl(${(p.hue + time * 20) % 360}, 100%, 65%)`;
               ctx.fill();
             });
           }
           break;
 
-        case '7': // Soundwave Tunnel (Concentric expanding rings sweeping toward the viewer)
+        case '7':
           {
             const cx = width / 2;
             const cy = height / 2;
-            for (let i = 0; i < 8; i++) {
-              const energy = dataArray[i * 4] / 255;
-              const r = ((performance.now() * 0.2 + (i * 100)) % (width * 0.6)) + (energy * 50);
-              ctx.beginPath();
-              ctx.arc(cx, cy, r, 0, Math.PI * 2);
-              ctx.strokeStyle = `rgba(114, 87, 255, ${Math.max(0, 1 - (r / (width * 0.6)))})`;
-              ctx.lineWidth = 4 + (energy * 8);
-              ctx.shadowBlur = 15;
-              ctx.shadowColor = '#7257ff';
-              ctx.stroke();
+
+            if (bass > 210) {
+              shockwaves.push({ r: 50, alpha: 1, color: `hsl(${Math.random() * 360}, 100%, 60%)` });
             }
+
+            shockwaves.forEach((sw, idx) => {
+              sw.r += 18;
+              sw.alpha -= 0.02;
+              ctx.beginPath();
+              ctx.arc(cx, cy, sw.r, 0, Math.PI * 2);
+              ctx.strokeStyle = sw.color;
+              ctx.globalAlpha = Math.max(0, sw.alpha);
+              ctx.lineWidth = 8;
+              ctx.shadowBlur = 20;
+              ctx.shadowColor = sw.color;
+              ctx.stroke();
+              ctx.globalAlpha = 1;
+              if (sw.alpha <= 0) shockwaves.splice(idx, 1);
+            });
+
+            ctx.beginPath();
+            ctx.arc(cx, cy, 80 + (bass * 0.6), 0, Math.PI * 2);
+            ctx.fillStyle = '#ff4757';
+            ctx.shadowBlur = 30;
+            ctx.shadowColor = '#ff4757';
+            ctx.fill();
           }
           break;
 
-        case '8': // Bass Warp Grid (Dynamic reactive grid flexing to the 808s)
+        case '8':
           {
-            const gridSpacing = 80;
-            ctx.strokeStyle = 'rgba(255, 255, 255, 0.15)';
-            ctx.lineWidth = 2;
+            ctx.fillStyle = '#00ff66';
+            ctx.font = 'bold 22px monospace';
+            ctx.shadowBlur = 10;
+            ctx.shadowColor = '#00ff66';
 
-            for (let x = 0; x < width; x += gridSpacing) {
-              ctx.beginPath();
-              for (let y = 0; y < height; y += 40) {
-                const idx = Math.floor((x + y) / 10) % bufferLength;
-                const offset = (dataArray[idx] / 255) * 30;
-                if (y === 0) ctx.moveTo(x + offset, y);
-                else ctx.lineTo(x + offset, y);
+            const cols = 40;
+            const colW = width / cols;
+            for (let i = 0; i < cols; i++) {
+              const val = dataArray[i * 4] / 255;
+              const y = ((time * 300 + (i * 90)) % height);
+              const char = String.fromCharCode(0x30A0 + Math.floor(Math.random() * 96));
+              ctx.fillText(char, i * colW, y);
+              if (val > 0.6) {
+                ctx.fillStyle = '#ffffff';
+                ctx.fillText(char, i * colW, y + 25);
+                ctx.fillStyle = '#00ff66';
               }
-              ctx.strokeStyle = '#54a0ff';
-              ctx.stroke();
             }
           }
           break;
 
-        case '9': // Traveling DNA Helix (Symmetrical double helix moving horizontally)
+        case '9':
           {
             const cx = width / 2;
-            const time = performance.now() * 0.004;
-            for (let i = 0; i < bufferLength; i++) {
-              const y = (i / bufferLength) * height;
-              const energy = dataArray[i] / 255;
-              const offset1 = Math.sin(time + (i * 0.15)) * (200 + (energy * 100));
-              const offset2 = -offset1;
-
-              ctx.fillStyle = '#ff4757';
-              ctx.beginPath();
-              ctx.arc(cx + offset1, y, 6 + (energy * 6), 0, Math.PI * 2);
-              ctx.fill();
+            for (let i = 0; i < 60; i++) {
+              const y = (i / 60) * height;
+              const val = dataArray[i * 3] / 255;
+              const offset = Math.sin(time * 3 + i * 0.15) * (180 + (val * 120));
 
               ctx.fillStyle = '#2ed573';
+              ctx.shadowBlur = 15;
+              ctx.shadowColor = '#2ed573';
               ctx.beginPath();
-              ctx.arc(cx + offset2, y, 6 + (energy * 6), 0, Math.PI * 2);
+              ctx.arc(cx + offset, y, 7 + (val * 8), 0, Math.PI * 2);
               ctx.fill();
 
-              if (i % 2 === 0) {
-                ctx.strokeStyle = 'rgba(255, 255, 255, 0.2)';
-                ctx.beginPath();
-                ctx.moveTo(cx + offset1, y);
-                ctx.lineTo(cx + offset2, y);
-                ctx.stroke();
-              }
+              ctx.fillStyle = '#ff4757';
+              ctx.shadowColor = '#ff4757';
+              ctx.beginPath();
+              ctx.arc(cx - offset, y, 7 + (val * 8), 0, Math.PI * 2);
+              ctx.fill();
+
+              ctx.strokeStyle = 'rgba(255,255,255,0.15)';
+              ctx.beginPath();
+              ctx.moveTo(cx + offset, y);
+              ctx.lineTo(cx - offset, y);
+              ctx.stroke();
             }
           }
           break;
 
-        case '10': // Neon Ring Flow (Tilted ring shifting position and pulsating)
+        case '10':
           {
-            const cx = width / 2 + Math.sin(orbitAngle) * 80;
-            const cy = height / 2 + Math.cos(orbitAngle) * 80;
-
+            const cx = width / 2;
+            const cy = height / 2;
+            const points = 100;
+            ctx.save();
             ctx.translate(cx, cy);
-            ctx.scale(1, 0.4); // Tilt effect
-            ctx.rotate(orbitAngle);
 
-            for (let i = 0; i < bufferLength; i++) {
-              const angle = (i * 2 * Math.PI) / bufferLength;
-              const r = 300 + ((dataArray[i] / 255) * 180);
+            for (let i = 0; i < points; i++) {
+              const angle = (i / points) * Math.PI * 2;
+              const val = dataArray[i % bufferLength] / 255;
+              const r = 220 + Math.sin(time * 4 + i * 0.2) * 40 + (val * 160);
               const x = Math.cos(angle) * r;
               const y = Math.sin(angle) * r;
 
-              ctx.fillStyle = `hsl(${i * 4}, 100%, 60%)`;
+              ctx.fillStyle = `hsl(${(i * 3 + time * 40) % 360}, 100%, 65%)`;
               ctx.shadowBlur = 15;
-              ctx.shadowColor = `hsl(${i * 4}, 100%, 60%)`;
+              ctx.shadowColor = `hsl(${(i * 3 + time * 40) % 360}, 100%, 65%)`;
               ctx.beginPath();
-              ctx.arc(x, y, 8, 0, Math.PI * 2);
+              ctx.arc(x, y, 6 + (val * 10), 0, Math.PI * 2);
               ctx.fill();
             }
+            ctx.restore();
           }
           break;
       }
       ctx.restore();
-
-      // Track Details Overlay
-      const title = document.getElementById('trackTitle').value;
-      const artist = document.getElementById('artistName').value;
-      if (title || artist) {
-        ctx.save();
-        ctx.fillStyle = '#ffffff';
-        ctx.font = `bold ${Math.floor(width * 0.045)}px sans-serif`;
-        ctx.textAlign = 'center';
-        ctx.fillText(title, width / 2, height * 0.18);
-
-        ctx.fillStyle = '#94a1b2';
-        ctx.font = `${Math.floor(width * 0.03)}px sans-serif`;
-        ctx.fillText(artist, width / 2, height * 0.24);
-        ctx.restore();
-      }
     }
 
-    // MP4 Export Logic
     exportBtn.addEventListener('click', async () => {
-      if (!audioElement || !isPlaying) {
-        alert('Please load and play an audio file first!');
+      if (!audioElement || !audioFile) {
+        alert('Please load an audio file first!');
         return;
       }
 
@@ -657,8 +781,12 @@
         return;
       }
 
+      if (audioContext.state === 'suspended') {
+        await audioContext.resume();
+      }
+
       audioElement.currentTime = 0;
-      audioElement.play();
+      togglePlay(true);
 
       exportBtn.textContent = 'Initializing MP4 Export...';
       exportBtn.style.background = '#ff4757';
@@ -672,14 +800,14 @@
 
       videoEncoder = new VideoEncoder({
         output: (chunk, meta) => muxer.addVideoChunk(chunk, meta),
-        error: e => console.error(e)
+        error: e => console.error('VideoEncoder error:', e)
       });
 
       videoEncoder.configure({
         codec: 'avc1.42001f',
         width: canvas.width,
         height: canvas.height,
-        bitrate: 5_000_000,
+        bitrate: 6_000_000,
         framerate: 30
       });
 
@@ -688,7 +816,7 @@
 
       audioEncoder = new AudioEncoder({
         output: (chunk, meta) => muxer.addAudioChunk(chunk, meta),
-        error: e => console.error(e)
+        error: e => console.error('AudioEncoder error:', e)
       });
 
       audioEncoder.configure({
@@ -766,7 +894,7 @@
         const a = document.createElement('a');
         a.style.display = 'none';
         a.href = url;
-        a.download = `${document.getElementById('trackTitle').value || 'vizzzual'}.mp4`;
+        a.download = 'vizzzual.mp4';
         document.body.appendChild(a);
         a.click();
         setTimeout(() => {

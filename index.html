@@ -7,12 +7,12 @@
   <script src="https://cdn.jsdelivr.net/npm/mp4-muxer@5.1.0/build/mp4-muxer.min.js"></script>
   <style>
     :root {
-      --bg-color: #050508;
-      --card-bg: #0e0e12;
-      --accent-color: #ff2a5f;
-      --accent-hover: #e01b4d;
+      --bg-color: #020005;
+      --card-bg: #0b0514;
+      --accent-color: #ff00ea;
+      --accent-hover: #cc00bb;
       --text-main: #fffffe;
-      --text-muted: #8a8a9e;
+      --text-muted: #9b8abf;
     }
 
     * {
@@ -47,7 +47,7 @@
       display: flex;
       flex-direction: column;
       gap: 18px;
-      border: 1px solid #1a1a24;
+      border: 1px solid #2a1142;
       max-height: 90vh;
       overflow-y: auto;
     }
@@ -57,6 +57,7 @@
       font-weight: 800;
       letter-spacing: -0.05em;
       color: var(--text-main);
+      text-shadow: 0 0 15px rgba(255, 0, 234, 0.6);
     }
 
     .section-title {
@@ -68,18 +69,18 @@
     }
 
     .dropzone {
-      border: 2px dashed #222230;
+      border: 2px dashed #421b6b;
       border-radius: 12px;
       padding: 20px;
       text-align: center;
       cursor: pointer;
       transition: all 0.2s ease;
-      background: #09090e;
+      background: #07020d;
     }
 
     .dropzone:hover {
       border-color: var(--accent-color);
-      background: #0f0f17;
+      background: #140521;
     }
 
     .playback-bar {
@@ -91,8 +92,8 @@
     .play-btn {
       flex: 1;
       padding: 12px;
-      background: #181824;
-      border: 1px solid #28283a;
+      background: #1a082b;
+      border: 1px solid #3c1261;
       color: #fff;
       border-radius: 8px;
       font-weight: 700;
@@ -117,8 +118,8 @@
     }
 
     .platform-btn, .style-btn {
-      background: #13131c;
-      border: 1px solid #222230;
+      background: #12051f;
+      border: 1px solid #2c1047;
       color: var(--text-main);
       padding: 9px;
       border-radius: 8px;
@@ -131,7 +132,7 @@
     .platform-btn.active, .style-btn.active {
       background: var(--accent-color);
       border-color: var(--accent-color);
-      box-shadow: 0 0 15px rgba(255, 42, 95, 0.4);
+      box-shadow: 0 0 15px rgba(255, 0, 234, 0.5);
     }
 
     .styles-grid {
@@ -152,7 +153,7 @@
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      border: 1px solid #1a1a24;
+      border: 1px solid #2a1142;
       min-height: 500px;
     }
 
@@ -165,7 +166,7 @@
       background: #000;
       border-radius: 12px;
       overflow: hidden;
-      box-shadow: 0 20px 50px rgba(0,0,0,0.8);
+      box-shadow: 0 0 40px rgba(255, 0, 234, 0.3);
     }
 
     canvas {
@@ -226,18 +227,18 @@
       </div>
 
       <div>
-        <div class="section-title">Avant-Garde Custom Presets</div>
+        <div class="section-title">Psychedelic Presets</div>
         <div class="styles-grid">
-          <button class="style-btn active" data-style="1">1. Liquid Ferrofluid</button>
-          <button class="style-btn" data-style="2">2. Audio Black Hole</button>
-          <button class="style-btn" data-style="3">3. Glitch VCR Core</button>
-          <button class="style-btn" data-style="4">4. Acid Liquid Plasma</button>
-          <button class="style-btn" data-style="5">5. Sub-Bass Seismograph</button>
-          <button class="style-btn" data-style="6">6. Laser Wireframe Warp</button>
-          <button class="style-btn" data-style="7">7. Cellular Bismuth</button>
-          <button class="style-btn" data-style="8">8. Cyberpunk Distortion</button>
-          <button class="style-btn" data-style="9">9. Fractal Kaleidoscope</button>
-          <button class="style-btn" data-style="10">10. Void Particle Singularity</button>
+          <button class="style-btn active" data-style="1">1. Acid Melt Wave</button>
+          <button class="style-btn" data-style="2">2. Hypno Kaleidoscope</button>
+          <button class="style-btn" data-style="3">3. Liquid DMT Tunnel</button>
+          <button class="style-btn" data-style="4">4. Psychedelic Mandalas</button>
+          <button class="style-btn" data-style="5">5. Electric Jellyfish</button>
+          <button class="style-btn" data-style="6">6. Rainbow Liquid Mirror</button>
+          <button class="style-btn" data-style="7">7. Cosmic Third Eye</button>
+          <button class="style-btn" data-style="8">8. Morphing Plasma Web</button>
+          <button class="style-btn" data-style="9">9. Infinite Ripple Void</button>
+          <button class="style-btn" data-style="10">10. Stroboscopic Portal</button>
         </div>
       </div>
 
@@ -280,10 +281,7 @@
     let recordingInterval = null;
     let startTime = 0;
     let currentStyle = '1';
-
     let time = 0;
-    let particles = [];
-    let glitchLines = [];
 
     const ratios = {
       '9:16': { width: 1080, height: 1920 },
@@ -299,7 +297,6 @@
         currentRatio = btn.getAttribute('data-ratio');
         canvas.width = ratios[currentRatio].width;
         canvas.height = ratios[currentRatio].height;
-        initEngine();
       });
     });
 
@@ -313,10 +310,10 @@
 
     dropzone.addEventListener('click', () => audioInput.click());
     dropzone.addEventListener('dragover', (e) => { e.preventDefault(); dropzone.style.borderColor = 'var(--accent-color)'; });
-    dropzone.addEventListener('dragleave', () => { dropzone.style.borderColor = '#222230'; });
+    dropzone.addEventListener('dragleave', () => { dropzone.style.borderColor = '#421b6b'; });
     dropzone.addEventListener('drop', (e) => {
       e.preventDefault();
-      dropzone.style.borderColor = '#222230';
+      dropzone.style.borderColor = '#421b6b';
       if (e.dataTransfer.files.length) handleAudioFile(e.dataTransfer.files[0]);
     });
 
@@ -349,7 +346,7 @@
 
       audioContext = new (window.AudioContext || window.webkitAudioContext)();
       analyser = audioContext.createAnalyser();
-      analyser.fftSize = 256;
+      analyser.fftSize = 512;
       analyser.smoothingTimeConstant = 0.85;
 
       sourceNode = audioContext.createMediaElementSource(audioElement);
@@ -358,7 +355,6 @@
 
       playPauseBtn.disabled = false;
       togglePlay(true);
-      initEngine();
 
       if (animationId) cancelAnimationFrame(animationId);
       drawVisualizer();
@@ -383,28 +379,15 @@
 
     playPauseBtn.addEventListener('click', () => togglePlay());
 
-    function initEngine() {
-      particles = [];
-      for (let i = 0; i < 200; i++) {
-        particles.push({
-          x: Math.random() * canvas.width,
-          y: Math.random() * canvas.height,
-          angle: Math.random() * Math.PI * 2,
-          speed: Math.random() * 2 + 0.5,
-          size: Math.random() * 3 + 1
-        });
-      }
-    }
-
     function drawVisualizer() {
       animationId = requestAnimationFrame(drawVisualizer);
-      time += 0.02;
+      time += 0.03;
 
       const width = canvas.width;
       const height = canvas.height;
 
-      // Heavy feedback blur/trail
-      ctx.fillStyle = bgImage ? 'rgba(5, 5, 8, 0.3)' : 'rgba(3, 3, 5, 0.25)';
+      // Heavy acid motion blur trail
+      ctx.fillStyle = bgImage ? 'rgba(3, 0, 8, 0.25)' : 'rgba(5, 0, 12, 0.18)';
       ctx.fillRect(0, 0, width, height);
 
       if (bgImage) {
@@ -418,230 +401,116 @@
 
       const bufferLength = analyser.frequencyBinCount;
       const dataArray = new Uint8Array(bufferLength);
-      analyser.getByteFrequencyData(dataArray);
+      analyser.getByteTimeDomainData(dataArray);
+
+      const freqArray = new Uint8Array(bufferLength);
+      analyser.getByteFrequencyData(freqArray);
 
       let bass = 0;
-      for (let i = 0; i < 8; i++) bass += dataArray[i];
-      bass = bass / 8;
+      for (let i = 0; i < 12; i++) bass += freqArray[i];
+      bass = bass / 12;
 
       ctx.save();
       if (bass > 200) {
-        ctx.translate((Math.random() - 0.5) * 14, (Math.random() - 0.5) * 14);
+        ctx.translate((Math.random() - 0.5) * (bass * 0.1), (Math.random() - 0.5) * (bass * 0.1));
       }
 
       const cx = width / 2;
       const cy = height / 2;
 
       switch(currentStyle) {
-        case '1': // 1. Liquid Ferrofluid (Organic morphing blob reacting to frequencies)
+        case '1': // Acid Melt Wave
           {
-            ctx.save();
-            ctx.translate(cx, cy);
-            ctx.beginPath();
-            const points = 120;
-            const radius = 250 + (bass * 0.6);
-
-            for (let i = 0; i < points; i++) {
-              const angle = (i / points) * Math.PI * 2;
-              const wave = Math.sin(angle * 6 + time * 3) * 30 + Math.cos(angle * 4 - time * 2) * ((dataArray[i % bufferLength] / 255) * 120);
-              const r = radius + wave;
-              const x = Math.cos(angle) * r;
-              const y = Math.sin(angle) * r;
-              if (i === 0) ctx.moveTo(x, y);
-              else ctx.lineTo(x, y);
-            }
-            ctx.closePath();
-            const grad = ctx.createRadialGradient(0, 0, 50, 0, 0, 400);
-            grad.addColorStop(0, '#ff2a5f');
-            grad.addColorStop(0.5, '#7257ff');
-            grad.addColorStop(1, '#00d2d3');
-            ctx.fillStyle = grad;
-            ctx.shadowBlur = 40;
-            ctx.shadowColor = '#ff2a5f';
-            ctx.fill();
-            ctx.restore();
-          }
-          break;
-
-        case '2': // 2. Audio Black Hole (Gravitational lensing light warp rings)
-          {
-            const rings = 18;
-            for (let i = 0; i < rings; i++) {
-              const r = (i * 45) + ((time * 60) % 45) + (bass * 0.4);
-              const alpha = Math.max(0, 1 - (r / (width * 0.6)));
+            for (let l = 0; l < 6; l++) {
               ctx.beginPath();
-              ctx.arc(cx, cy, r, 0, Math.PI * 2);
-              ctx.strokeStyle = `rgba(255, 42, 95, ${alpha})`;
-              ctx.lineWidth = 3 + ((i / rings) * 6);
-              ctx.shadowBlur = 25;
-              ctx.shadowColor = '#ff2a5f';
-              ctx.stroke();
-            }
-          }
-          break;
-
-        case '3': // 3. Glitch VCR Core (Analog data corruption scanline warp)
-          {
-            ctx.lineWidth = 4;
-            ctx.beginPath();
-            for (let i = 0; i < width; i += 6) {
-              const idx = Math.floor((i / width) * bufferLength);
-              const amp = (dataArray[idx] / 255) * (height * 0.35);
-              const glitchOffset = (Math.random() > 0.92) ? (Math.random() - 0.5) * 100 : 0;
-              const x = i + glitchOffset;
-              const y = cy + Math.sin(time * 5 + i * 0.02) * 120 + ((i % 2 === 0) ? amp : -amp);
-              if (i === 0) ctx.moveTo(x, y);
-              else ctx.lineTo(x, y);
-            }
-            ctx.strokeStyle = '#00ffcc';
-            ctx.shadowBlur = 20;
-            ctx.shadowColor = '#00ffcc';
-            ctx.stroke();
-          }
-          break;
-
-        case '4': // 4. Acid Liquid Plasma (Sinuous multi-colored fluid ribbons)
-          {
-            for (let l = 0; l < 5; l++) {
-              ctx.beginPath();
-              for (let x = 0; x < width; x += 15) {
-                const idx = Math.floor((x / width) * bufferLength);
-                const val = dataArray[idx] / 255;
-                const y = cy + Math.sin(time * 2 + x * 0.01 + l) * (150 + l * 40) + Math.cos(x * 0.005 - time * 3) * (val * 300);
-                if (x === 0) ctx.moveTo(x, y);
-                else ctx.lineTo(x, y);
-              }
-              ctx.strokeStyle = `hsl(${(l * 70 + time * 50) % 360}, 100%, 60%)`;
-              ctx.lineWidth = 6;
-              ctx.shadowBlur = 25;
+              ctx.lineWidth = 6 + l * 2;
+              const hue = (time * 40 + l * 50) % 360;
+              ctx.strokeStyle = `hsl(${hue}, 100%, 60%)`;
+              ctx.shadowBlur = 35;
               ctx.shadowColor = ctx.strokeStyle;
-              ctx.stroke();
-            }
-          }
-          break;
 
-        case '5': // 5. Sub-Bass Seismograph (Raw oscilloscope vibration sweep)
-          {
-            ctx.lineWidth = 5;
-            ctx.beginPath();
-            const slice = width / bufferLength;
-            for (let i = 0; i < bufferLength; i++) {
-              const x = i * slice;
-              const v = dataArray[i] / 128.0;
-              const y = cy + (v - 1) * (height * 0.45) + Math.sin(time * 10 + i) * (bass * 0.2);
-              if (i === 0) ctx.moveTo(x, y);
-              else ctx.lineTo(x, y);
-            }
-            ctx.strokeStyle = '#ff0055';
-            ctx.shadowBlur = 30;
-            ctx.shadowColor = '#ff0055';
-            ctx.stroke();
-          }
-          break;
-
-        case '6': // 6. Laser Wireframe Warp (3D Geometric Tunnel Grid)
-          {
-            ctx.save();
-            ctx.translate(cx, cy);
-            ctx.rotate(time * 0.5);
-            const sides = 8;
-            const maxR = width * 0.6;
-            for (let j = 1; j < 10; j++) {
-              const r = ((time * 100 + j * 70) % maxR) + (bass * 0.3);
-              const alpha = Math.max(0, 1 - (r / maxR));
-              ctx.beginPath();
-              for (let i = 0; i <= sides; i++) {
-                const angle = (i * Math.PI * 2) / sides;
-                const x = Math.cos(angle) * r;
-                const y = Math.sin(angle) * r;
+              const slice = width / bufferLength;
+              for (let i = 0; i < bufferLength; i++) {
+                const v = dataArray[i] / 128.0;
+                const x = i * slice;
+                const y = cy + Math.sin(time * 3 + i * 0.04 + l) * ((v - 1) * (height * 0.45)) + Math.cos(i * 0.02 - time * 2) * 80;
                 if (i === 0) ctx.moveTo(x, y);
                 else ctx.lineTo(x, y);
               }
-              ctx.closePath();
-              ctx.strokeStyle = `rgba(0, 210, 211, ${alpha})`;
-              ctx.lineWidth = 4;
-              ctx.shadowBlur = 15;
-              ctx.shadowColor = '#00d2d3';
               ctx.stroke();
             }
-            ctx.restore();
           }
           break;
 
-        case '7': // 7. Cellular Bismuth (Voronoi shifting crystalline node web)
-          {
-            particles.forEach((p, index) => {
-              const energy = dataArray[index % bufferLength] / 255;
-              p.x += Math.cos(p.angle) * (p.speed + energy * 6);
-              p.y += Math.sin(p.angle) * (p.speed + energy * 6);
-
-              if (p.x < 0) p.x = width;
-              if (p.x > width) p.x = 0;
-              if (p.y < 0) p.y = height;
-              if (p.y > height) p.y = 0;
-
-              ctx.beginPath();
-              ctx.arc(p.x, p.y, p.size + (energy * 8), 0, Math.PI * 2);
-              ctx.fillStyle = `hsl(${index * 15 + time * 30}, 100%, 65%)`;
-              ctx.shadowBlur = 15;
-              ctx.shadowColor = ctx.fillStyle;
-              ctx.fill();
-
-              // Connect nodes
-              for (let j = index + 1; j < index + 5; j++) {
-                const p2 = particles[j % particles.length];
-                const dist = Math.hypot(p.x - p2.x, p.y - p2.y);
-                if (dist < 140) {
-                  ctx.beginPath();
-                  ctx.moveTo(p.x, p.y);
-                  ctx.lineTo(p2.x, p2.y);
-                  ctx.strokeStyle = `rgba(255, 42, 95, ${1 - (dist / 140)})`;
-                  ctx.lineWidth = 1.5;
-                  ctx.stroke();
-                }
-              }
-            });
-          }
-          break;
-
-        case '8': // 8. Cyberpunk Distortion (Neon cyber spikes & data arrays)
-          {
-            const bars = 48;
-            const bWidth = width / bars;
-            for (let i = 0; i < bars; i++) {
-              const val = dataArray[i * 2] / 255;
-              const h = val * (height * 0.5);
-              const x = i * bWidth;
-
-              ctx.fillStyle = `hsl(${i * 8}, 100%, 55%)`;
-              ctx.shadowBlur = 20;
-              ctx.shadowColor = ctx.fillStyle;
-
-              // Top and bottom mirrored spiking columns
-              ctx.fillRect(x + 4, 0, bWidth - 8, h);
-              ctx.fillRect(x + 4, height - h, bWidth - 8, h);
-            }
-          }
-          break;
-
-        case '9': // 9. Fractal Kaleidoscope (Rotational mirror symmetry)
+        case '2': // Hypno Kaleidoscope
           {
             ctx.save();
             ctx.translate(cx, cy);
-            const petals = 12;
+            ctx.rotate(time * 0.4);
+            const petals = 8;
             for (let p = 0; p < petals; p++) {
               ctx.rotate((Math.PI * 2) / petals);
               ctx.beginPath();
-              for (let i = 0; i < 40; i++) {
-                const r = i * 15;
-                const idx = i % bufferLength;
-                const offset = Math.sin(time * 3 + i * 0.2) * ((dataArray[idx] / 255) * 50);
+              for (let i = 0; i < 60; i++) {
+                const r = i * 14;
+                const v = dataArray[i % bufferLength] / 128.0;
+                const offset = Math.sin(time * 4 + i * 0.15) * ((v - 1) * 120);
                 const x = r;
                 const y = offset;
                 if (i === 0) ctx.moveTo(x, y);
                 else ctx.lineTo(x, y);
               }
-              ctx.strokeStyle = `hsl(${(p * 30 + time * 20) % 360}, 100%, 60%)`;
+              ctx.strokeStyle = `hsl(${p * 45 + time * 30}, 100%, 65%)`;
+              ctx.lineWidth = 5;
+              ctx.shadowBlur = 25;
+              ctx.shadowColor = ctx.strokeStyle;
+              ctx.stroke();
+            }
+            ctx.restore();
+          }
+          break;
+
+        case '3': // Liquid DMT Tunnel
+          {
+            ctx.save();
+            ctx.translate(cx, cy);
+            const rings = 16;
+            for (let i = rings; i > 0; i--) {
+              const r = ((time * 120 + i * 60) % (width * 0.7)) + (bass * 0.4);
+              const alpha = Math.max(0, 1 - (r / (width * 0.7)));
+              ctx.beginPath();
+              ctx.arc(0, 0, r, 0, Math.PI * 2);
+              ctx.strokeStyle = `hsla(${(i * 25 + time * 50) % 360}, 100%, 60%, ${alpha})`;
+              ctx.lineWidth = 8 + (i * 1.5);
+              ctx.shadowBlur = 30;
+              ctx.shadowColor = `hsl(${(i * 25) % 360}, 100%, 60%)`;
+              ctx.stroke();
+            }
+            ctx.restore();
+          }
+          break;
+
+        case '4': // Psychedelic Mandalas
+          {
+            ctx.save();
+            ctx.translate(cx, cy);
+            ctx.rotate(-time * 0.3);
+            const layers = 7;
+            for (let l = 1; l <= layers; l++) {
+              ctx.beginPath();
+              const radius = l * 65 + (bass * 0.3 * l);
+              const points = 80;
+              for (let i = 0; i < points; i++) {
+                const angle = (i / points) * Math.PI * 2;
+                const v = freqArray[i % bufferLength] / 255;
+                const rad = radius + Math.sin(angle * 6 + time * 3) * (v * 70);
+                const x = Math.cos(angle) * rad;
+                const y = Math.sin(angle) * rad;
+                if (i === 0) ctx.moveTo(x, y);
+                else ctx.lineTo(x, y);
+              }
+              ctx.closePath();
+              ctx.strokeStyle = `hsl(${l * 50 + time * 20}, 100%, 65%)`;
               ctx.lineWidth = 4;
               ctx.shadowBlur = 20;
               ctx.shadowColor = ctx.strokeStyle;
@@ -651,30 +520,163 @@
           }
           break;
 
-        case '10': // 10. Void Particle Singularity (Explosive central event horizon vortex)
+        case '5': // Electric Jellyfish
           {
-            particles.forEach((p, i) => {
-              const energy = dataArray[i % bufferLength] / 255;
-              const dx = cx - p.x;
-              const dy = cy - p.y;
-              const dist = Math.hypot(dx, dy);
-              const angle = Math.atan2(dy, dx);
-
-              p.x += Math.cos(angle) * (2 + energy * 10) - Math.sin(angle) * 3;
-              p.y += Math.sin(angle) * (2 + energy * 10) + Math.cos(angle) * 3;
-
-              if (dist < 30 || p.x < 0 || p.x > width || p.y < 0 || p.y > height) {
-                p.x = cx + (Math.random() - 0.5) * width;
-                p.y = cy + (Math.random() - 0.5) * height;
-              }
-
+            ctx.save();
+            ctx.translate(cx, cy);
+            const tentacles = 40;
+            for (let i = 0; i < tentacles; i++) {
+              const angle = (i / tentacles) * Math.PI * 2;
               ctx.beginPath();
-              ctx.arc(p.x, p.y, p.size + (energy * 6), 0, Math.PI * 2);
-              ctx.fillStyle = '#ffffff';
-              ctx.shadowBlur = 12;
-              ctx.shadowColor = '#ff2a5f';
-              ctx.fill();
-            });
+              ctx.moveTo(0, 0);
+
+              for (let j = 1; j < 25; j++) {
+                const dist = j * 25;
+                const v = freqArray[(i + j) % bufferLength] / 255;
+                const wobble = Math.sin(time * 4 + j * 0.2 + i) * (v * 60);
+                const x = Math.cos(angle + wobble * 0.01) * dist;
+                const y = Math.sin(angle + wobble * 0.01) * dist;
+                ctx.lineTo(x, y);
+              }
+              ctx.strokeStyle = `hsl(${i * 9 + time * 30}, 100%, 60%)`;
+              ctx.lineWidth = 3;
+              ctx.shadowBlur = 15;
+              ctx.shadowColor = ctx.strokeStyle;
+              ctx.stroke();
+            }
+            ctx.restore();
+          }
+          break;
+
+        case '6': // Rainbow Liquid Mirror
+          {
+            ctx.save();
+            ctx.translate(cx, cy);
+            const slice = width / bufferLength;
+            for (let l = 0; l < 2; l++) {
+              ctx.beginPath();
+              ctx.lineWidth = 7;
+              ctx.strokeStyle = l === 0 ? '#ff00ea' : '#00ffff';
+              ctx.shadowBlur = 30;
+              ctx.shadowColor = ctx.strokeStyle;
+
+              for (let i = 0; i < bufferLength; i++) {
+                const v = dataArray[i] / 128.0;
+                const x = (i - bufferLength / 2) * (slice * 1.5);
+                const y = (l === 0 ? 1 : -1) * ((v - 1) * (height * 0.35) + Math.sin(time * 3 + i * 0.05) * 60);
+                if (i === 0) ctx.moveTo(x, y);
+                else ctx.lineTo(x, y);
+              }
+              ctx.stroke();
+            }
+            ctx.restore();
+          }
+          break;
+
+        case '7': // Cosmic Third Eye
+          {
+            ctx.save();
+            ctx.translate(cx, cy);
+            // Pulsing Eye Center
+            const eyeR = 90 + (bass * 0.5);
+            ctx.beginPath();
+            ctx.arc(0, 0, eyeR, 0, Math.PI * 2);
+            ctx.fillStyle = '#ff00ea';
+            ctx.shadowBlur = 40;
+            ctx.shadowColor = '#ff00ea';
+            ctx.fill();
+
+            // Radiating triangular/sacred geometry rays
+            const rays = 24;
+            for (let i = 0; i < rays; i++) {
+              const angle = (i / rays) * Math.PI * 2 + (time * 0.2);
+              const v = freqArray[i % bufferLength] / 255;
+              const len = 300 + (v * 200);
+              ctx.beginPath();
+              ctx.moveTo(Math.cos(angle) * eyeR, Math.sin(angle) * eyeR);
+              ctx.lineTo(Math.cos(angle) * len, Math.sin(angle) * len);
+              ctx.strokeStyle = `hsl(${i * 15 + time * 40}, 100%, 60%)`;
+              ctx.lineWidth = 4;
+              ctx.shadowBlur = 20;
+              ctx.shadowColor = ctx.strokeStyle;
+              ctx.stroke();
+            }
+            ctx.restore();
+          }
+          break;
+
+        case '8': // Morphing Plasma Web
+          {
+            ctx.save();
+            ctx.translate(cx, cy);
+            const nodes = 30;
+            const pts = [];
+            for (let i = 0; i < nodes; i++) {
+              const angle = (i / nodes) * Math.PI * 2 + time;
+              const v = freqArray[i % bufferLength] / 255;
+              const r = 200 + Math.sin(time * 3 + i) * 100 + (v * 120);
+              pts.push({ x: Math.cos(angle) * r, y: Math.sin(angle) * r });
+            }
+
+            for (let i = 0; i < pts.length; i++) {
+              for (let j = i + 1; j < pts.length; j++) {
+                const dist = Math.hypot(pts[i].x - pts[j].x, pts[i].y - pts[j].y);
+                if (dist < 180) {
+                  ctx.beginPath();
+                  ctx.moveTo(pts[i].x, pts[i].y);
+                  ctx.lineTo(pts[j].x, pts[j].y);
+                  ctx.strokeStyle = `hsla(${(i * 12 + time * 30) % 360}, 100%, 60%, ${1 - (dist / 180)})`;
+                  ctx.lineWidth = 2.5;
+                  ctx.shadowBlur = 15;
+                  ctx.shadowColor = '#ff00ea';
+                  ctx.stroke();
+                }
+              }
+            }
+            ctx.restore();
+          }
+          break;
+
+        case '9': // Infinite Ripple Void
+          {
+            ctx.save();
+            ctx.translate(cx, cy);
+            const ripples = 12;
+            for (let i = 0; i < ripples; i++) {
+              const r = ((time * 80 + i * 90) % (width * 0.65));
+              const v = freqArray[i * 4 % bufferLength] / 255;
+              ctx.beginPath();
+              ctx.ellipse(0, 0, r, r * 0.5, time * 0.2, 0, Math.PI * 2);
+              ctx.strokeStyle = `hsl(${i * 30 + time * 40}, 100%, 60%)`;
+              ctx.lineWidth = 4 + (v * 8);
+              ctx.shadowBlur = 25;
+              ctx.shadowColor = ctx.strokeStyle;
+              ctx.stroke();
+            }
+            ctx.restore();
+          }
+          break;
+
+        case '10': // Stroboscopic Portal
+          {
+            ctx.save();
+            ctx.translate(cx, cy);
+            ctx.rotate(time * 2);
+            const count = 18;
+            for (let i = 0; i < count; i++) {
+              const angle = (i / count) * Math.PI * 2;
+              const v = freqArray[i % bufferLength] / 255;
+              const len = 350 + (v * 250);
+              ctx.beginPath();
+              ctx.moveTo(0, 0);
+              ctx.lineTo(Math.cos(angle) * len, Math.sin(angle) * len);
+              ctx.strokeStyle = `hsl(${i * 20 - time * 60}, 100%, 65%)`;
+              ctx.lineWidth = 8;
+              ctx.shadowBlur = 30;
+              ctx.shadowColor = ctx.strokeStyle;
+              ctx.stroke();
+            }
+            ctx.restore();
           }
           break;
       }
@@ -700,7 +702,7 @@
       togglePlay(true);
 
       exportBtn.textContent = 'Initializing MP4 Export...';
-      exportBtn.style.background = '#ff0055';
+      exportBtn.style.background = '#ff00ea';
 
       muxer = new Mp4Muxer.Muxer({
         target: new Mp4Muxer.ArrayBufferTarget(),

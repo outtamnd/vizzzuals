@@ -1,0 +1,720 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>vizzzuals</title>
+  <!-- Load mp4-muxer from CDN for browser-side MP4 container generation -->
+  <script src="https://cdn.jsdelivr.net/npm/mp4-muxer@5.1.0/build/mp4-muxer.min.js"></script>
+  <style>
+    :root {
+      --bg-color: #0b0b0e;
+      --card-bg: #16161a;
+      --accent-color: #7257ff;
+      --text-main: #fffffe;
+      --text-muted: #94a1b2;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+
+    body {
+      background-color: var(--bg-color);
+      color: var(--text-main);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .app-container {
+      width: 100%;
+      max-width: 1200px;
+      display: grid;
+      grid-template-columns: 380px 1fr;
+      gap: 30px;
+    }
+
+    /* Left Sidebar - Controls */
+    .controls-panel {
+      background: var(--card-bg);
+      padding: 24px;
+      border-radius: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+      border: 1px solid #242429;
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+
+    h1 {
+      font-size: 1.8rem;
+      font-weight: 800;
+      letter-spacing: -0.05em;
+      color: var(--text-main);
+    }
+
+    .section-title {
+      font-size: 0.82rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+    }
+
+    /* Dropzone */
+    .dropzone {
+      border: 2px dashed #33333d;
+      border-radius: 12px;
+      padding: 20px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      background: #101014;
+    }
+
+    .dropzone:hover {
+      border-color: var(--accent-color);
+      background: #14141a;
+    }
+
+    /* Platform Aspect Ratio Selector */
+    .platform-selector {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 6px;
+    }
+
+    .platform-btn, .style-btn {
+      background: #202026;
+      border: 1px solid #2e2e38;
+      color: var(--text-main);
+      padding: 8px;
+      border-radius: 8px;
+      font-size: 0.75rem;
+      cursor: pointer;
+      font-weight: 600;
+      transition: all 0.2s;
+    }
+
+    .platform-btn.active, .style-btn.active {
+      background: var(--accent-color);
+      border-color: var(--accent-color);
+    }
+
+    /* 10 Styles Grid */
+    .styles-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 6px;
+    }
+
+    /* Custom Input Styling */
+    input[type="text"], input[type="file"] {
+      width: 100%;
+      padding: 10px 12px;
+      background: #101014;
+      border: 1px solid #2a2a32;
+      border-radius: 8px;
+      color: #fff;
+      outline: none;
+      font-size: 0.9rem;
+    }
+
+    /* Canvas Preview Area */
+    .preview-panel {
+      background: var(--card-bg);
+      border-radius: 16px;
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid #242429;
+      min-height: 500px;
+    }
+
+    .canvas-wrapper {
+      max-width: 100%;
+      max-height: 600px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #000;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    }
+
+    canvas {
+      display: block;
+      max-width: 100%;
+      max-height: 550px;
+      object-fit: contain;
+    }
+
+    .action-btn {
+      width: 100%;
+      padding: 14px;
+      background: var(--accent-color);
+      border: none;
+      border-radius: 8px;
+      color: #fff;
+      font-weight: 700;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: opacity 0.2s;
+    }
+
+    .action-btn:hover {
+      opacity: 0.9;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="app-container">
+    <!-- Controls Sidebar -->
+    <div class="controls-panel">
+      <h1>vizzzuals</h1>
+
+      <!-- File Dropzone -->
+      <div>
+        <div class="section-title">Audio File</div>
+        <div class="dropzone" id="dropzone">
+          <p style="font-size: 0.85rem; color: var(--text-muted);">Drag & drop audio or click</p>
+          <input type="file" id="audioInput" accept="audio/*" style="display: none;">
+        </div>
+      </div>
+
+      <!-- Platform / Aspect Ratio -->
+      <div>
+        <div class="section-title">Platform Ratio</div>
+        <div class="platform-selector">
+          <button class="platform-btn active" data-ratio="9:16">Story (9:16)</button>
+          <button class="platform-btn" data-ratio="1:1">Feed (1:1)</button>
+          <button class="platform-btn" data-ratio="16:9">Wide (16:9)</button>
+        </div>
+      </div>
+
+      <!-- 10 Visualizer Styles Selector -->
+      <div>
+        <div class="section-title">Visualizer Style (10 Options)</div>
+        <div class="styles-grid">
+          <button class="style-btn active" data-style="1">1. Glowing Bars</button>
+          <button class="style-btn" data-style="2">2. Center Pulse Ring</button>
+          <button class="style-btn" data-style="3">3. Radial Frequency</button>
+          <button class="style-btn" data-style="4">4. Smooth Waveform</button>
+          <button class="style-btn" data-style="5">5. Vinyl Disc Spin</button>
+          <button class="style-btn" data-style="6">6. Neon Spectrum</button>
+          <button class="style-btn" data-style="7">7. Shockwave Pulses</button>
+          <button class="style-btn" data-style="8">8. Matrix Rain Beat</button>
+          <button class="style-btn" data-style="9">9. Mirror Bars</button>
+          <button class="style-btn" data-style="10">10. Minimalist Dots</button>
+        </div>
+      </div>
+
+      <!-- Track Info Input -->
+      <div>
+        <div class="section-title">Track Details</div>
+        <input type="text" id="trackTitle" placeholder="Track Title" style="margin-bottom: 8px;">
+        <input type="text" id="artistName" placeholder="Artist / Producer">
+      </div>
+
+      <!-- Background Image -->
+      <div>
+        <div class="section-title">Background Image (Optional)</div>
+        <input type="file" id="bgInput" accept="image/*">
+      </div>
+
+      <button class="action-btn" id="exportBtn">Export MP4 Video</button>
+    </div>
+
+    <!-- Live Preview Area -->
+    <div class="preview-panel">
+      <div class="canvas-wrapper">
+        <canvas id="visualizerCanvas" width="1080" height="1920"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const dropzone = document.getElementById('dropzone');
+    const audioInput = document.getElementById('audioInput');
+    const bgInput = document.getElementById('bgInput');
+    const canvas = document.getElementById('visualizerCanvas');
+    const ctx = canvas.getContext('2d');
+    const platformBtns = document.querySelectorAll('.platform-btn');
+    const styleBtns = document.querySelectorAll('.style-btn');
+    const exportBtn = document.getElementById('exportBtn');
+
+    let audioContext, audioElement, analyser, sourceNode;
+    let audioFile = null;
+    let bgImage = null;
+    let isPlaying = false;
+    let animationId = null;
+    let muxer = null;
+    let videoEncoder = null;
+    let audioEncoder = null;
+    let recordingInterval = null;
+    let startTime = 0;
+    let currentStyle = '1';
+
+    const ratios = {
+      '9:16': { width: 1080, height: 1920 },
+      '1:1':  { width: 1080, height: 1080 },
+      '16:9': { width: 1920, height: 1080 }
+    };
+    let currentRatio = '9:16';
+
+    platformBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        platformBtns.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        currentRatio = btn.getAttribute('data-ratio');
+        canvas.width = ratios[currentRatio].width;
+        canvas.height = ratios[currentRatio].height;
+      });
+    });
+
+    styleBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        styleBtns.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        currentStyle = btn.getAttribute('data-style');
+      });
+    });
+
+    dropzone.addEventListener('click', () => audioInput.click());
+    dropzone.addEventListener('dragover', (e) => { e.preventDefault(); dropzone.style.borderColor = 'var(--accent-color)'; });
+    dropzone.addEventListener('dragleave', () => { dropzone.style.borderColor = '#33333d'; });
+    dropzone.addEventListener('drop', (e) => {
+      e.preventDefault();
+      dropzone.style.borderColor = '#33333d';
+      if (e.dataTransfer.files.length) handleAudioFile(e.dataTransfer.files[0]);
+    });
+
+    audioInput.addEventListener('change', (e) => {
+      if (e.target.files.length) handleAudioFile(e.target.files[0]);
+    });
+
+    bgInput.addEventListener('change', (e) => {
+      if (e.target.files.length) {
+        const reader = new FileReader();
+        reader.onload = (event) => {
+          bgImage = new Image();
+          bgImage.src = event.target.result;
+        };
+        reader.readAsDataURL(e.target.files[0]);
+      }
+    });
+
+    function handleAudioFile(file) {
+      audioFile = URL.createObjectURL(file);
+      dropzone.querySelector('p').textContent = `Loaded: ${file.name}`;
+      const titleInput = document.getElementById('trackTitle');
+      if (!titleInput.value) {
+        titleInput.value = file.name.replace(/\.[^/.]+$/, "");
+      }
+      setupAudioContext();
+    }
+
+    function setupAudioContext() {
+      if (audioElement) audioElement.pause();
+
+      audioElement = new Audio(audioFile);
+      audioElement.crossOrigin = "anonymous";
+      
+      audioContext = new (window.AudioContext || window.webkitAudioContext)();
+      analyser = audioContext.createAnalyser();
+      analyser.fftSize = 256;
+
+      sourceNode = audioContext.createMediaElementSource(audioElement);
+      sourceNode.connect(analyser);
+      analyser.connect(audioContext.destination);
+
+      audioElement.play();
+      isPlaying = true;
+
+      if (animationId) cancelAnimationFrame(animationId);
+      drawVisualizer();
+    }
+
+    function drawVisualizer() {
+      animationId = requestAnimationFrame(drawVisualizer);
+
+      const width = canvas.width;
+      const height = canvas.height;
+      ctx.clearRect(0, 0, width, height);
+
+      if (bgImage) {
+        ctx.drawImage(bgImage, 0, 0, width, height);
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.55)';
+        ctx.fillRect(0, 0, width, height);
+      } else {
+        ctx.fillStyle = '#050507';
+        ctx.fillRect(0, 0, width, height);
+      }
+
+      const bufferLength = analyser.frequencyBinCount;
+      const dataArray = new Uint8Array(bufferLength);
+      analyser.getByteFrequencyData(dataArray);
+
+      // Average volume for pulse reactions
+      let sum = 0;
+      for(let i=0; i<bufferLength; i++) sum += dataArray[i];
+      let avg = sum / bufferLength;
+
+      ctx.save();
+      switch(currentStyle) {
+        case '1': // Glowing Bars
+          {
+            const barWidth = (width / bufferLength) * 2.5;
+            let x = (width - (bufferLength * barWidth)) / 2;
+            for (let i = 0; i < bufferLength; i++) {
+              const barHeight = (dataArray[i] / 255) * (height * 0.4);
+              ctx.fillStyle = '#7257ff';
+              ctx.shadowBlur = 15;
+              ctx.shadowColor = '#7257ff';
+              ctx.fillRect(x, (height / 2) - (barHeight / 2), barWidth - 2, barHeight);
+              x += barWidth + 2;
+            }
+          }
+          break;
+
+        case '2': // Center Pulse Ring
+          {
+            let radius = 150 + (avg * 0.8);
+            ctx.beginPath();
+            ctx.arc(width / 2, height / 2, radius, 0, Math.PI * 2);
+            ctx.strokeStyle = '#7257ff';
+            ctx.lineWidth = 8;
+            ctx.shadowBlur = 25;
+            ctx.shadowColor = '#7257ff';
+            ctx.stroke();
+
+            ctx.beginPath();
+            ctx.arc(width / 2, height / 2, radius * 0.7, 0, Math.PI * 2);
+            ctx.strokeStyle = '#ff4757';
+            ctx.lineWidth = 4;
+            ctx.stroke();
+          }
+          break;
+
+        case '3': // Radial Frequency Circle
+          {
+            const cx = width / 2;
+            const cy = height / 2;
+            const r = 200;
+            ctx.translate(cx, cy);
+            for (let i = 0; i < bufferLength; i++) {
+              const angle = (i * 2 * Math.PI) / bufferLength;
+              const barLen = (dataArray[i] / 255) * 200;
+              const x1 = Math.cos(angle) * r;
+              const y1 = Math.sin(angle) * r;
+              const x2 = Math.cos(angle) * (r + barLen);
+              const y2 = Math.sin(angle) * (r + barLen);
+
+              ctx.strokeStyle = `hsl(${i * 3}, 100%, 60%)`;
+              ctx.lineWidth = 4;
+              ctx.beginPath();
+              ctx.moveTo(x1, y1);
+              ctx.lineTo(x2, y2);
+              ctx.stroke();
+            }
+          }
+          break;
+
+        case '4': // Smooth Waveform line
+          {
+            ctx.beginPath();
+            ctx.lineWidth = 6;
+            ctx.strokeStyle = '#2ed573';
+            ctx.shadowBlur = 20;
+            ctx.shadowColor = '#2ed573';
+            const sliceWidth = width / bufferLength;
+            let x = 0;
+            for (let i = 0; i < bufferLength; i++) {
+              const v = dataArray[i] / 128.0;
+              const y = (v * height / 2);
+              if (i === 0) ctx.moveTo(x, y);
+              else ctx.lineTo(x, y);
+              x += sliceWidth;
+            }
+            ctx.stroke();
+          }
+          break;
+
+        case '5': // Vinyl Disc Spin
+          {
+            const cx = width / 2;
+            const cy = height / 2;
+            const vinylR = 250 + (avg * 0.2);
+            ctx.save();
+            ctx.translate(cx, cy);
+            ctx.rotate(performance.now() * 0.002);
+
+            // Vinyl Base
+            ctx.beginPath();
+            ctx.arc(0, 0, vinylR, 0, Math.PI * 2);
+            ctx.fillStyle = '#111';
+            ctx.shadowBlur = 30;
+            ctx.shadowColor = '#000';
+            ctx.fill();
+            ctx.lineWidth = 5;
+            ctx.strokeStyle = '#333';
+            ctx.stroke();
+
+            // Grooves
+            for(let r=80; r<vinylR; r+=25) {
+              ctx.beginPath();
+              ctx.arc(0, 0, r, 0, Math.PI * 2);
+              ctx.strokeStyle = '#222';
+              ctx.lineWidth = 2;
+              ctx.stroke();
+            }
+
+            // Center Label
+            ctx.beginPath();
+            ctx.arc(0, 0, 70, 0, Math.PI * 2);
+            ctx.fillStyle = '#7257ff';
+            ctx.fill();
+            ctx.restore();
+          }
+          break;
+
+        case '6': // Neon Spectrum Bars
+          {
+            const barWidth = width / bufferLength;
+            for (let i = 0; i < bufferLength; i++) {
+              const barHeight = (dataArray[i] / 255) * (height * 0.6);
+              ctx.fillStyle = `hsl(${i * 4}, 100%, 50%)`;
+              ctx.shadowBlur = 12;
+              ctx.shadowColor = `hsl(${i * 4}, 100%, 50%)`;
+              ctx.fillRect(i * barWidth, height - barHeight, barWidth - 1, barHeight);
+            }
+          }
+          break;
+
+        case '7': // Shockwave Pulses
+          {
+            const cx = width / 2;
+            const cy = height / 2;
+            for(let k=1; k<=3; k++) {
+              let r = (avg * 3 * k) + (performance.now() * 0.1 % 300);
+              ctx.beginPath();
+              ctx.arc(cx, cy, r, 0, Math.PI * 2);
+              ctx.strokeStyle = `rgba(114, 87, 255, ${Math.max(0, 1 - (r/600))})`;
+              ctx.lineWidth = 5;
+              ctx.stroke();
+            }
+          }
+          break;
+
+        case '8': // Matrix Rain Beat
+          {
+            ctx.fillStyle = '#00ff66';
+            ctx.font = '24px monospace';
+            for(let i=0; i<bufferLength; i+=4) {
+              let char = String.fromCharCode(65 + Math.floor(Math.random() * 26));
+              let x = (i / bufferLength) * width;
+              let y = (dataArray[i] / 255) * height;
+              ctx.fillText(char, x, y);
+            }
+          }
+          break;
+
+        case '9': // Mirror Bars
+          {
+            const barWidth = (width / bufferLength) * 2;
+            let x = (width - (bufferLength * barWidth)) / 2;
+            for (let i = 0; i < bufferLength; i++) {
+              const barHeight = (dataArray[i] / 255) * (height * 0.3);
+              ctx.fillStyle = '#ff9f43';
+              ctx.shadowBlur = 10;
+              ctx.shadowColor = '#ff9f43';
+              ctx.fillRect(x, height/2 - barHeight, barWidth - 2, barHeight);
+              ctx.fillRect(x, height/2, barWidth - 2, barHeight);
+              x += barWidth;
+            }
+          }
+          break;
+
+        case '10': // Minimalist Dots
+          {
+            const radiusStep = width / bufferLength;
+            for (let i = 0; i < bufferLength; i++) {
+              let x = i * radiusStep;
+              let y = height / 2 + Math.sin(i + performance.now()*0.005) * (dataArray[i] * 0.8);
+              ctx.beginPath();
+              ctx.arc(x, y, (dataArray[i] / 255) * 12, 0, Math.PI * 2);
+              ctx.fillStyle = '#ffffff';
+              ctx.shadowBlur = 15;
+              ctx.shadowColor = '#00d2d3';
+              ctx.fill();
+            }
+          }
+          break;
+      }
+      ctx.restore();
+
+      // Track Text Overlay
+      const title = document.getElementById('trackTitle').value;
+      const artist = document.getElementById('artistName').value;
+      if (title || artist) {
+        ctx.save();
+        ctx.fillStyle = '#ffffff';
+        ctx.font = `bold ${Math.floor(width * 0.045)}px sans-serif`;
+        ctx.textAlign = 'center';
+        ctx.fillText(title, width / 2, height * 0.18);
+
+        ctx.fillStyle = '#94a1b2';
+        ctx.font = `${Math.floor(width * 0.03)}px sans-serif`;
+        ctx.fillText(artist, width / 2, height * 0.24);
+        ctx.restore();
+      }
+    }
+
+    // MP4 Export Logic
+    exportBtn.addEventListener('click', async () => {
+      if (!audioElement || !isPlaying) {
+        alert('Please load and play an audio file first!');
+        return;
+      }
+
+      if (videoEncoder) {
+        stopMp4Export();
+        return;
+      }
+
+      audioElement.currentTime = 0;
+      audioElement.play();
+
+      exportBtn.textContent = 'Initializing MP4 Export...';
+      exportBtn.style.background = '#ff4757';
+
+      muxer = new Mp4Muxer.Muxer({
+        target: new Mp4Muxer.ArrayBufferTarget(),
+        video: { codec: 'avc', width: canvas.width, height: canvas.height },
+        audio: { codec: 'aac', sampleRate: audioContext.sampleRate, numberOfChannels: 2 },
+        fastStart: 'in-memory'
+      });
+
+      videoEncoder = new VideoEncoder({
+        output: (chunk, meta) => muxer.addVideoChunk(chunk, meta),
+        error: e => console.error(e)
+      });
+
+      videoEncoder.configure({
+        codec: 'avc1.42001f',
+        width: canvas.width,
+        height: canvas.height,
+        bitrate: 5_000_000,
+        framerate: 30
+      });
+
+      const dest = audioContext.createMediaStreamDestination();
+      sourceNode.connect(dest);
+
+      audioEncoder = new AudioEncoder({
+        output: (chunk, meta) => muxer.addAudioChunk(chunk, meta),
+        error: e => console.error(e)
+      });
+
+      audioEncoder.configure({
+        codec: 'mp4a.40.2',
+        sampleRate: audioContext.sampleRate,
+        numberOfChannels: 2,
+        bitrate: 128_000
+      });
+
+      startTime = performance.now();
+      let frameIndex = 0;
+      const fps = 30;
+      const intervalMs = 1000 / fps;
+
+      exportBtn.textContent = 'Recording MP4... Click to Stop & Save';
+
+      recordingInterval = setInterval(async () => {
+        if (audioElement.ended) {
+          stopMp4Export();
+          return;
+        }
+        const timestamp = (performance.now() - startTime) * 1000;
+        const frame = new VideoFrame(canvas, { timestamp });
+        videoEncoder.encode(frame, { keyFrame: frameIndex % 60 === 0 });
+        frame.close();
+        frameIndex++;
+      }, intervalMs);
+
+      const processor = audioContext.createScriptProcessor(4096, 2, 2);
+      sourceNode.connect(processor);
+      processor.connect(audioContext.destination);
+
+      processor.onaudioprocess = (e) => {
+        if (!audioEncoder || audioEncoder.state === 'closed') return;
+        const inputBuffer = e.inputBuffer;
+        const audioData = new AudioData({
+          format: 'f32-planar',
+          sampleRate: inputBuffer.sampleRate,
+          numberOfFrames: inputBuffer.length,
+          numberOfChannels: 2,
+          timestamp: (performance.now() - startTime) * 1000,
+          data: [inputBuffer.getChannelData(0), inputBuffer.getChannelData(1)]
+        });
+        audioEncoder.encode(audioData);
+        audioData.close();
+      };
+
+      window.activeAudioProcessor = processor;
+    });
+
+    async function stopMp4Export() {
+      if (recordingInterval) clearInterval(recordingInterval);
+      if (window.activeAudioProcessor) {
+        window.activeAudioProcessor.disconnect();
+        window.activeAudioProcessor = null;
+      }
+
+      if (videoEncoder) {
+        await videoEncoder.flush();
+        videoEncoder.close();
+        videoEncoder = null;
+      }
+
+      if (audioEncoder) {
+        await audioEncoder.flush();
+        audioEncoder.close();
+        audioEncoder = null;
+      }
+
+      if (muxer) {
+        muxer.finalize();
+        const buffer = muxer.target.buffer;
+        const blob = new Blob([buffer], { type: 'video/mp4' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.style.display = 'none';
+        a.href = url;
+        a.download = `${document.getElementById('trackTitle').value || 'vizzzual'}.mp4`;
+        document.body.appendChild(a);
+        a.click();
+        setTimeout(() => {
+          document.body.removeChild(a);
+          window.URL.revokeObjectURL(url);
+        }, 100);
+        muxer = null;
+      }
+
+      exportBtn.textContent = 'Export MP4 Video';
+      exportBtn.style.background = 'var(--accent-color)';
+    }
+  </script>
+</body>
+</html>
